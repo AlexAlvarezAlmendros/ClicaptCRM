@@ -1,0 +1,181 @@
+/* ─── LAYOUT PRINCIPAL ─── */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--surface-app);
+}
+
+.app-layout__sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--surface-sidebar);
+  border-right: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  z-index: var(--z-sticky);
+  transition: width var(--transition-slow);
+  overflow: hidden;
+}
+
+.app-layout__main {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-left var(--transition-slow);
+}
+
+.app-layout__header {
+  position: sticky;
+  top: 0;
+  height: var(--header-height);
+  background: var(--surface-primary);
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-6);
+  z-index: var(--z-sticky);
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .app-layout__header {
+  background: rgba(17, 24, 39, 0.85);
+}
+
+.app-layout__content {
+  flex: 1;
+  padding: var(--space-6);
+  max-width: var(--content-max-width);
+  width: 100%;
+}
+
+/* ─── Pipeline: sin max-width, ocupa todo ─── */
+.app-layout__content--full {
+  max-width: none;
+  padding: var(--space-4);
+}
+
+
+/* ─── SIDEBAR ─── */
+.sidebar__logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-5);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.sidebar__logo-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--color-primary-500);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.sidebar__logo-text {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.sidebar__nav {
+  flex: 1;
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0.625rem var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.sidebar__link:hover {
+  background: var(--surface-secondary);
+  color: var(--text-primary);
+}
+
+.sidebar__link--active {
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+}
+
+[data-theme="dark"] .sidebar__link--active {
+  background: rgba(96, 165, 250, 0.1);
+  color: var(--color-primary-500);
+}
+
+.sidebar__link-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.sidebar__footer {
+  padding: var(--space-4);
+  border-top: 1px solid var(--border-default);
+}
+
+
+/* ─── RESPONSIVE: TABLET ─── */
+@media (max-width: 1024px) {
+  .app-layout__sidebar {
+    width: var(--sidebar-width-collapsed);
+  }
+
+  .app-layout__main {
+    margin-left: var(--sidebar-width-collapsed);
+  }
+
+  .sidebar__logo-text,
+  .sidebar__link-label {
+    display: none;
+  }
+
+  .sidebar__link {
+    justify-content: center;
+    padding: var(--space-3);
+  }
+}
+
+
+/* ─── RESPONSIVE: MÓVIL ─── */
+@media (max-width: 768px) {
+  .app-layout__sidebar {
+    display: none;
+  }
+
+  .app-layout__main {
+    margin-left: 0;
+    padding-bottom: var(--bottom-nav-height);
+  }
+
+  .app-layout__content {
+    padding: var(--space-4);
+  }
+
+  .app-layout__header {
+    padding: 0 var(--space-4);
+  }
+}

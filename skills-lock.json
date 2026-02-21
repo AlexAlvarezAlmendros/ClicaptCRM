@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "skills": {
+    "SQLite Database Expert": {
+      "source": "martinholovsky/claude-skills-generator",
+      "sourceType": "github",
+      "computedHash": "515e1971f145631025485c6dbf83c62bb7ee0fabc805d0e2bd07ac2aac7f24d8"
+    },
+    "auth0-express": {
+      "source": "auth0/agent-skills",
+      "sourceType": "github",
+      "computedHash": "dfa44d0a25d6f77130221377252c1d092ac1c5e71ab969e82d87c5d97c6b140b"
+    },
+    "auth0-react": {
+      "source": "auth0/agent-skills",
+      "sourceType": "github",
+      "computedHash": "1937c93d1c51ffa2332436110a28bfd1b3fdbce7a3340bafa7f6282d87c5ae8e"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "computedHash": "25872a21881a950edc3db1f3329664d60405d539660ce05b3265db2de06a7dfd"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "516bd2154eb843a8240e43d5b285229129853114ad7075a5e141e1c08e408c84"
+    },
+    "nodejs-best-practices": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "computedHash": "2db1035d93178955be256b78667ec870d3842369daf516030e3c61c17010f758"
+    },
+    "stripe-best-practices": {
+      "source": "anthropics/claude-plugins-official",
+      "sourceType": "github",
+      "computedHash": "ed7f3a58f1432476fa398660a7cdfeeaf31baf6ada263607619c3b75437ce238"
+    },
+    "stripe-integration": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "computedHash": "2e19f5794ab8b72c8986ae0681214341b0259830f02b0d3d6482f67c037457a9"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "61f8c307aa8ce0c4c52da8886d42e344dab83f76f9b5360cf8923b25fb1d67bb"
+    }
+  }
+}

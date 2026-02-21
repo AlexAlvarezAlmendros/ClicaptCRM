@@ -1,0 +1,59 @@
+.deal-card {
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  cursor: grab;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.deal-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-hover);
+}
+
+.deal-card:active {
+  cursor: grabbing;
+  box-shadow: var(--shadow-lg);
+  transform: rotate(1.5deg);
+}
+
+/* Mientras se arrastra (clase añadida por dnd-kit) */
+.deal-card--dragging {
+  box-shadow: var(--shadow-xl);
+  opacity: 0.9;
+  transform: rotate(2deg) scale(1.02);
+  z-index: var(--z-modal);
+}
+
+.deal-card__title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.deal-card__company {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-3);
+}
+
+.deal-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.deal-card__value {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary-500);
+  font-variant-numeric: tabular-nums;
+}
+
+.deal-card__date {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}

@@ -1,0 +1,114 @@
+/* ─── TABLERO KANBAN ─── */
+.pipeline-board {
+  display: flex;
+  gap: var(--space-4);
+  height: calc(100vh - var(--header-height) - var(--space-8) - 60px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: var(--space-4);
+
+  /* Scrollbar personalizado */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-hover) transparent;
+}
+
+.pipeline-board::-webkit-scrollbar {
+  height: 6px;
+}
+.pipeline-board::-webkit-scrollbar-track {
+  background: transparent;
+}
+.pipeline-board::-webkit-scrollbar-thumb {
+  background: var(--border-hover);
+  border-radius: var(--radius-full);
+}
+
+
+/* ─── COLUMNA ─── */
+.pipeline-column {
+  flex: 0 0 var(--kanban-column-width);
+  min-width: var(--kanban-column-min);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-kanban-col);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-default);
+  overflow: hidden;
+}
+
+.pipeline-column__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.pipeline-column__title-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pipeline-column__color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.pipeline-column__title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.pipeline-column__count {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-tertiary);
+  background: var(--surface-primary);
+  padding: var(--space-0-5) var(--space-2);
+  border-radius: var(--radius-full);
+  min-width: 24px;
+  text-align: center;
+}
+
+.pipeline-column__total {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.pipeline-column__cards {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-hover) transparent;
+}
+
+/* Drop zone visual cuando se arrastra */
+.pipeline-column--drag-over {
+  background: var(--color-primary-50);
+  border-color: var(--color-primary-300);
+}
+
+/* ─── RESPONSIVE: MÓVIL ─── */
+@media (max-width: 768px) {
+  .pipeline-board {
+    flex-direction: column;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .pipeline-column {
+    flex: none;
+    min-width: 100%;
+  }
+}

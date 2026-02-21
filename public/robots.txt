@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://leadflow.vercel.app/sitemap.xml

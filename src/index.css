@@ -1,0 +1,100 @@
+/* ================================================================
+   LEADFLOW CRM — Global Styles
+   ================================================================ */
+
+/* ─── Imports (must come first) ─── */
+@import "./styles/tokens.css";
+@import "./styles/typography.css";
+@import "./components/ui/Button.css";
+@import "./components/ui/Input.css";
+@import "./components/ui/Card.css";
+@import "./components/ui/Badge.css";
+@import "./components/ui/ThemeToggle.css";
+@import "./components/layout/AppLayout.css";
+@import "./components/layout/BottomNav.css";
+@import "./components/dashboard/KpiCard.css";
+@import "./components/pipeline/DealCard.css";
+@import "./components/pipeline/PipelineBoard.css";
+
+/* ─── Tailwind Directives ─── */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base Reset ─── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: var(--leading-normal);
+    color: var(--text-primary);
+    background: var(--surface-app);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--surface-app);
+  }
+
+  a {
+    color: var(--text-link);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--text-link-hover);
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  button {
+    font-family: inherit;
+  }
+
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  /* Focus visible global */
+  :focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+  }
+
+  /* Scrollbar global */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-hover);
+    border-radius: var(--radius-full);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gray-400);
+  }
+}
