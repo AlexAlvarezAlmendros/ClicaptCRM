@@ -27,6 +27,7 @@
   flex-direction: column;
   min-height: 100vh;
   transition: margin-left var(--transition-slow);
+  overflow-x: hidden;
 }
 
 .app-layout__header {
@@ -53,6 +54,7 @@
   padding: var(--space-6);
   max-width: var(--content-max-width);
   width: 100%;
+  overflow: hidden;
 }
 
 /* ─── Pipeline: sin max-width, ocupa todo ─── */

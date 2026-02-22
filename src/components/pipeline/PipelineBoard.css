@@ -6,6 +6,8 @@
   overflow-x: auto;
   overflow-y: hidden;
   padding-bottom: var(--space-4);
+  max-width: 100%;
+  width: 100%;
 
   /* Scrollbar personalizado */
   scrollbar-width: thin;
