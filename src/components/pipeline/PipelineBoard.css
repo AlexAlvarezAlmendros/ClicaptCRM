@@ -98,6 +98,28 @@
   border-color: var(--color-primary-300);
 }
 
+/* Botón "Añadir" al pie de columna */
+.pipeline-column__add-btn {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 1px dashed var(--border-default);
+}
+.pipeline-column__add-btn:hover {
+  color: var(--color-primary-500);
+  border-color: var(--color-primary-300);
+  background: var(--color-primary-50);
+}
+
 /* ─── RESPONSIVE: MÓVIL ─── */
 @media (max-width: 768px) {
   .pipeline-board {

@@ -12,8 +12,8 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
-    "migrate": "node scripts/migrate.js",
-    "seed": "node scripts/seed.js"
+    "migrate": "node --env-file=.env scripts/migrate.js",
+    "seed": "node --env-file=.env scripts/seed.js"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",

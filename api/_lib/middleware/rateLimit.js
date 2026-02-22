@@ -33,12 +33,5 @@ export function rateLimit(req) {
   }
 }
 
-// Clean up old entries periodically
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, entry] of rateLimitMap) {
-    if (now > entry.resetAt) {
-      rateLimitMap.delete(ip);
-    }
-  }
-}, 5 * 60 * 1000); // every 5 minutes
+// Note: In serverless, each cold start gets a fresh Map.
+// No cleanup interval needed — the Map lives only for the function's lifetime.

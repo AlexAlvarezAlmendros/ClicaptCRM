@@ -61,18 +61,18 @@ async function seed() {
 
   // 4. Contacts
   const contacts = [
-    ["cnt_001", "María", "García López", "maria@ejemplo.com", "+34 612 345 678", "Directora Marketing", "Empresa ABC", "website", "lead"],
+    ["cnt_001", "María", "García López", "maria@ejemplo.com", "+34 612 345 678", "Directora Marketing", "Empresa ABC", "web", "new"],
     ["cnt_002", "Carlos", "Martínez", "carlos@ejemplo.com", "+34 623 456 789", "CEO", "StartupXYZ", "referral", "qualified"],
     ["cnt_003", "Ana", "Rodríguez", "ana@ejemplo.com", "+34 634 567 890", "CTO", "TechCorp", "linkedin", "customer"],
-    ["cnt_004", "Pedro", "Sánchez", "pedro@ejemplo.com", "+34 645 678 901", "Director Ventas", "Retail Plus", "cold_call", "lead"],
-    ["cnt_005", "Laura", "Fernández", "laura@ejemplo.com", "+34 656 789 012", "Fundadora", "Digital Agency", "website", "qualified"],
+    ["cnt_004", "Pedro", "Sánchez", "pedro@ejemplo.com", "+34 645 678 901", "Director Ventas", "Retail Plus", "cold_call", "new"],
+    ["cnt_005", "Laura", "Fernández", "laura@ejemplo.com", "+34 656 789 012", "Fundadora", "Digital Agency", "web", "qualified"],
   ];
 
-  for (const [id, firstName, lastName, email, phone, position, company, source, status] of contacts) {
+  for (const [id, name, surname, email, phone, jobTitle, company, source, status] of contacts) {
     await db.execute({
-      sql: `INSERT OR IGNORE INTO contacts (id, organization_id, first_name, last_name, email, phone, position, company, source, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [id, "org_demo_001", firstName, lastName, email, phone, position, company, source, status],
+      sql: `INSERT OR IGNORE INTO contacts (id, organization_id, name, surname, email, phone, job_title, company, source, status, created_by)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [id, "org_demo_001", name, surname, email, phone, jobTitle, company, source, status, "usr_demo_001"],
     });
   }
   console.log("  ✅  Contacts created");
@@ -103,32 +103,32 @@ async function seed() {
 
   for (const [id, contactId, stageId, title, value, pos] of deals) {
     await db.execute({
-      sql: `INSERT OR IGNORE INTO deals (id, organization_id, contact_id, stage_id, title, value, position)
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      args: [id, "org_demo_001", contactId, stageId, title, value, pos],
+      sql: `INSERT OR IGNORE INTO deals (id, organization_id, contact_id, stage_id, title, value, position, created_by)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [id, "org_demo_001", contactId, stageId, title, value, pos, "usr_demo_001"],
     });
   }
   console.log("  ✅  Deals created");
 
   // 7. Tasks
   const tasks = [
-    ["task_001", "cnt_001", "deal_001", "usr_demo_001", "Llamar a María para seguimiento", "call", "high", "date('now')"],
-    ["task_002", "cnt_002", "deal_002", "usr_demo_001", "Enviar propuesta a Carlos", "email", "medium", "date('now', '+1 day')"],
-    ["task_003", "cnt_004", null, "usr_demo_001", "Preparar presentación para Pedro", "other", "low", "date('now', '+3 days')"],
+    ["task_001", "cnt_001", "deal_001", "usr_demo_001", "Llamar a María para seguimiento", "high"],
+    ["task_002", "cnt_002", "deal_002", "usr_demo_001", "Enviar propuesta a Carlos", "medium"],
+    ["task_003", "cnt_004", null, "usr_demo_001", "Preparar presentación para Pedro", "low"],
   ];
 
-  for (const [id, contactId, dealId, userId, desc, type, priority, dueSql] of tasks) {
+  for (const [id, contactId, dealId, userId, title, priority] of tasks) {
     await db.execute({
-      sql: `INSERT OR IGNORE INTO tasks (id, organization_id, contact_id, deal_id, assigned_to, description, type, priority, due_date)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ${dueSql})`,
-      args: [id, "org_demo_001", contactId, dealId, userId, desc, type, priority],
+      sql: `INSERT OR IGNORE INTO tasks (id, organization_id, contact_id, deal_id, assigned_to, created_by, title, priority, due_date)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, date('now', '+1 day'))`,
+      args: [id, "org_demo_001", contactId, dealId, userId, userId, title, priority],
     });
   }
   console.log("  ✅  Tasks created");
 
   // 8. Activities
   await db.execute({
-    sql: `INSERT OR IGNORE INTO activities (id, organization_id, contact_id, user_id, type, description)
+    sql: `INSERT OR IGNORE INTO activities (id, organization_id, contact_id, created_by, type, description)
           VALUES (?, ?, ?, ?, ?, ?)`,
     args: [
       "act_001",

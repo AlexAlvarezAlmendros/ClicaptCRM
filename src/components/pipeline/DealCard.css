@@ -56,4 +56,23 @@
 .deal-card__date {
   font-size: var(--text-xs);
   color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+}
+
+.deal-card__grip {
+  all: unset;
+  cursor: grab;
+  color: var(--text-tertiary);
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  touch-action: none;
+}
+.deal-card__grip:hover {
+  color: var(--text-secondary);
+  background: var(--surface-secondary);
+}
+.deal-card__grip:active {
+  cursor: grabbing;
 }

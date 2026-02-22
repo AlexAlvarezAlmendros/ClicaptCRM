@@ -1,16 +1,15 @@
 // LeadFlow CRM — API — Tags CRUD
-// Owned by Agente 1 — Backend Lead
 
 import { withErrorHandler } from "../_lib/middleware/errorHandler.js";
 import { verifyAuth } from "../_lib/middleware/auth.js";
 import { resolveTenant } from "../_lib/middleware/tenant.js";
 import { sendSuccess, sendError } from "../_lib/utils/response.js";
-import { db } from "../_lib/db/client.js";
+import db from "../_lib/db/client.js";
 
 async function handler(req, res) {
-  const user = await verifyAuth(req);
-  const tenant = await resolveTenant(user);
-  const orgId = tenant.organization_id;
+  const authUser = await verifyAuth(req);
+  const tenant = await resolveTenant(authUser.auth0Id);
+  const orgId = tenant.orgId;
 
   switch (req.method) {
     case "GET": {
