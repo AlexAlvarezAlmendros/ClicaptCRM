@@ -8,7 +8,7 @@ import db from "../_lib/db/client.js";
 
 async function handler(req, res) {
   const authUser = await verifyAuth(req);
-  const tenant = await resolveTenant(authUser.auth0Id);
+  const tenant = await resolveTenant(authUser);
   const orgId = tenant.orgId;
 
   switch (req.method) {

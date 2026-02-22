@@ -1,16 +1,14 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useId } from "react";
 import { X } from "lucide-react";
 import { Button } from "./Button";
 
 export function Modal({ isOpen, onClose, title, children, footer, size = "md" }) {
-  const dialogRef = useRef(null);
+  const titleId = useId();
 
   useEffect(() => {
     if (isOpen) {
-      dialogRef.current?.showModal();
       document.body.style.overflow = "hidden";
     } else {
-      dialogRef.current?.close();
       document.body.style.overflow = "";
     }
     return () => {
@@ -51,10 +49,9 @@ export function Modal({ isOpen, onClose, title, children, footer, size = "md" })
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-labelledby={titleId}
         style={{
           width: "100%",
           maxWidth: sizeClasses[size],
@@ -77,7 +74,7 @@ export function Modal({ isOpen, onClose, title, children, footer, size = "md" })
             borderBottom: "1px solid var(--border-default)",
           }}
         >
-          <h2 className="text-h2">{title}</h2>
+          <h2 id={titleId} className="text-h2">{title}</h2>
           <Button variant="ghost" size="sm" iconOnly onClick={onClose} aria-label="Cerrar">
             <X size={18} />
           </Button>

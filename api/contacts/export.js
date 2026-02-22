@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
   try {
     const authUser = await verifyAuth(req);
-    const tenant = await resolveTenant(authUser.auth0Id);
+    const tenant = await resolveTenant(authUser);
 
     const result = await db.execute({
       sql: `SELECT c.first_name, c.last_name, c.email, c.phone, c.company,

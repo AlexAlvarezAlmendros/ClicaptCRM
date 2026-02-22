@@ -8,7 +8,7 @@ import { sendSuccess, sendError } from "../_lib/utils/response.js";
 export default async function handler(req, res) {
   try {
     const authUser = await verifyAuth(req);
-    const tenant = await resolveTenant(authUser.auth0Id);
+    const tenant = await resolveTenant(authUser);
 
     if (tenant.isExpired && req.method !== "GET") {
       return sendError(res, 403, "FORBIDDEN", "Tu suscripción ha expirado. Renueva para continuar.");

@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
   try {
     const authUser = await verifyAuth(req);
-    const tenant = await resolveTenant(authUser.auth0Id);
+    const tenant = await resolveTenant(authUser);
 
     if (tenant.role !== "admin") {
       return sendError(res, 403, "FORBIDDEN", "Solo el administrador puede gestionar la suscripción");

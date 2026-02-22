@@ -90,7 +90,7 @@ export default async function handler(req, res) {
 
   try {
     const authUser = await verifyAuth(req);
-    const tenant = await resolveTenant(authUser.auth0Id);
+    const tenant = await resolveTenant(authUser);
     requireActiveSubscription(tenant);
 
     const { csv } = req.body;

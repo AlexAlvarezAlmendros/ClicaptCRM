@@ -1,14 +1,14 @@
 // LeadFlow CRM — API — User profile (get current user, update)
 
-import { verifyAuth } from "../_lib/middleware/auth.js";
-import { resolveTenant } from "../_lib/middleware/tenant.js";
-import { sendSuccess, sendError } from "../_lib/utils/response.js";
-import db from "../_lib/db/client.js";
+import { verifyAuth } from "./_lib/middleware/auth.js";
+import { resolveTenant } from "./_lib/middleware/tenant.js";
+import { sendSuccess, sendError } from "./_lib/utils/response.js";
+import db from "./_lib/db/client.js";
 
 export default async function handler(req, res) {
   try {
     const authUser = await verifyAuth(req);
-    const tenant = await resolveTenant(authUser.auth0Id);
+    const tenant = await resolveTenant(authUser);
 
     switch (req.method) {
       case "GET": {

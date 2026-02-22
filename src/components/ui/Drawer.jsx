@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import { X } from "lucide-react";
 import { Button } from "./Button";
 
 export function Drawer({ isOpen, onClose, title, children, side = "right", width = "420px" }) {
+  const titleId = useId();
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -42,7 +43,7 @@ export function Drawer({ isOpen, onClose, title, children, side = "right", width
       <aside
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-labelledby={titleId}
         style={{
           position: "fixed",
           ...sideStyles[side],
@@ -66,7 +67,7 @@ export function Drawer({ isOpen, onClose, title, children, side = "right", width
             borderBottom: "1px solid var(--border-default)",
           }}
         >
-          <h2 className="text-h2">{title}</h2>
+          <h2 id={titleId} className="text-h2">{title}</h2>
           <Button variant="ghost" size="sm" iconOnly onClick={onClose} aria-label="Cerrar">
             <X size={18} />
           </Button>
