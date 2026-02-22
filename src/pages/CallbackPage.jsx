@@ -5,7 +5,7 @@ import { Spinner } from "../components/ui/Spinner";
 import { apiClient } from "../lib/api";
 
 export default function CallbackPage() {
-  const { isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
+  const { isAuthenticated, isLoading, getAccessTokenSilently, user } = useAuth0();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,7 +13,8 @@ export default function CallbackPage() {
       if (!isAuthenticated) return;
       try {
         const token = await getAccessTokenSilently();
-        await apiClient.post("/api/auth/callback", {}, token);
+        // Send user email from Auth0 profile as fallback (access tokens may not include it)
+        await apiClient.post("/api/auth/callback", { email: user?.email, name: user?.name }, token);
       } catch {
         // User may already exist — continue
       }
@@ -23,7 +24,7 @@ export default function CallbackPage() {
     if (!isLoading) {
       syncUser();
     }
-  }, [isAuthenticated, isLoading, getAccessTokenSilently, navigate]);
+  }, [isAuthenticated, isLoading, getAccessTokenSilently, user, navigate]);
 
   return (
     <div

@@ -39,12 +39,9 @@ export async function resolveTenant(authUserOrId) {
       }
 
       // ── Auto-provision: create org + user + default pipeline stages ──
-      if (email) {
-        console.info(`[tenant] Auto-provisioning user ${auth0Id} (${email})`);
-        return await autoProvision(auth0Id, email);
-      }
-
-      throw { status: 404, code: "NOT_FOUND", message: "Usuario no registrado" };
+      const provisionEmail = email || `${auth0Id.replace(/\|/g, "_")}@unknown.local`;
+      console.info(`[tenant] Auto-provisioning user ${auth0Id} (${provisionEmail})`);
+      return await autoProvision(auth0Id, provisionEmail);
     }
 
     const user = result.rows[0];

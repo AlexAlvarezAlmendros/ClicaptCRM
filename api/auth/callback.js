@@ -13,6 +13,9 @@ export default async function handler(req, res) {
   try {
     const authUser = await verifyAuth(req);
 
+    // Accept email from request body as fallback (frontend sends it)
+    const email = authUser.email || req.body?.email || `${authUser.auth0Id}@unknown.local`;
+
     // Check if user already exists
     const existing = await db.execute({
       sql: "SELECT id, organization_id FROM users WHERE auth0_id = ?",
@@ -31,17 +34,18 @@ export default async function handler(req, res) {
     const orgId = crypto.randomUUID().replace(/-/g, "");
     const userId = crypto.randomUUID().replace(/-/g, "");
     const trialEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const userName = email.includes("@") ? email.split("@")[0] : email;
 
     const batch = [
       {
         sql: `INSERT INTO organizations (id, name, plan, trial_ends_at, subscription_status)
               VALUES (?, ?, 'trial', ?, 'trialing')`,
-        args: [orgId, `Empresa de ${authUser.email}`, trialEnd],
+        args: [orgId, `Empresa de ${email}`, trialEnd],
       },
       {
         sql: `INSERT INTO users (id, auth0_id, organization_id, email, name, role)
               VALUES (?, ?, ?, ?, ?, 'admin')`,
-        args: [userId, authUser.auth0Id, orgId, authUser.email, authUser.email.split("@")[0]],
+        args: [userId, authUser.auth0Id, orgId, email, userName],
       },
       {
         sql: `INSERT INTO pipeline_stages (id, organization_id, name, color, probability, position, is_won, is_lost) VALUES
