@@ -39,6 +39,8 @@ export function ToastProvider({ children }) {
       {children}
       {/* Toast container */}
       <div
+        aria-live="polite"
+        aria-relevant="additions"
         style={{
           position: "fixed",
           bottom: "var(--space-6)",
@@ -77,6 +79,7 @@ export function ToastProvider({ children }) {
               </span>
               <button
                 onClick={() => removeToast(toast.id)}
+                aria-label="Cerrar notificación"
                 style={{
                   background: "none",
                   border: "none",

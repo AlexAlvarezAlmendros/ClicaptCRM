@@ -64,14 +64,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Pipeline funnel + Activity */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "var(--space-4)",
-          marginBottom: "var(--space-4)",
-        }}
-      >
+      <div className="dashboard-grid-2col">
         {/* Pipeline funnel */}
         <Card>
           <Card.Header>

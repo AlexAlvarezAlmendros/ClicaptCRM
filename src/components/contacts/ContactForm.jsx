@@ -264,6 +264,7 @@ export function ContactForm({ isOpen, onClose, contact = null }) {
               iconOnly
               onClick={addTag}
               disabled={!tagInput.trim()}
+              aria-label="Añadir etiqueta"
             >
               <Plus size={16} />
             </Button>

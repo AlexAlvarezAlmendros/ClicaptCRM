@@ -29,7 +29,7 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="sidebar__nav">
+      <nav className="sidebar__nav" aria-label="Navegación principal">
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}

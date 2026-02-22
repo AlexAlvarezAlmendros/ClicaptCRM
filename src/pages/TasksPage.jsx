@@ -7,6 +7,8 @@ import { Badge } from "../components/ui/Badge";
 import { TaskForm } from "../components/tasks/TaskForm";
 import { Plus, CheckSquare, Circle, CheckCircle2, Calendar, User } from "lucide-react";
 import { formatDate, formatRelativeTime } from "../lib/formatters";
+import { useSubscriptionGate } from "../components/onboarding/SubscriptionGate";
+import { SkeletonList } from "../components/ui/Skeleton";
 
 const FILTERS = [
   { key: "all", label: "Todas" },
@@ -29,6 +31,7 @@ export default function TasksPage() {
 
   const [formOpen, setFormOpen] = useState(false);
   const [editTask, setEditTask] = useState(null);
+  const { canWrite } = useSubscriptionGate();
 
   const tasks = data?.data?.items || data?.data || [];
 
@@ -60,21 +63,14 @@ export default function TasksPage() {
   return (
     <div>
       {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "var(--space-6)",
-        }}
-      >
+      <div className="tasks-header" style={{ marginBottom: "var(--space-6)" }}>
         <div>
           <h1 className="text-h1">Tareas</h1>
           <p className="text-body-sm" style={{ color: "var(--text-tertiary)" }}>
             {tasks.length} tarea{tasks.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <Button leftIcon={Plus} onClick={handleNew}>Nueva tarea</Button>
+        <Button leftIcon={Plus} onClick={handleNew} disabled={!canWrite} title={!canWrite ? "Suscripción requerida" : undefined}>Nueva tarea</Button>
       </div>
 
       {/* Filter tabs */}
@@ -115,9 +111,7 @@ export default function TasksPage() {
 
       {/* Task list */}
       {isLoading ? (
-        <div style={{ display: "flex", justifyContent: "center", padding: "var(--space-12)" }}>
-          <Spinner size={32} />
-        </div>
+        <SkeletonList count={6} />
       ) : tasks.length === 0 ? (
         <EmptyState
           icon={CheckSquare}

@@ -71,13 +71,14 @@ export const Textarea = forwardRef(function Textarea(
         id={inputId}
         className={`input textarea ${error ? "input--error" : ""}`}
         aria-invalid={!!error}
+        aria-describedby={error ? `${inputId}-error` : helpText ? `${inputId}-help` : undefined}
         {...props}
       />
       {error && (
-        <span className="input-error-text" role="alert">{error}</span>
+        <span className="input-error-text" role="alert" id={`${inputId}-error`}>{error}</span>
       )}
       {helpText && !error && (
-        <span className="input-help-text">{helpText}</span>
+        <span className="input-help-text" id={`${inputId}-help`}>{helpText}</span>
       )}
     </div>
   );

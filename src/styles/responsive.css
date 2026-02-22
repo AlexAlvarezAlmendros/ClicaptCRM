@@ -1,0 +1,149 @@
+/* ============================================
+   Responsive & Accessibility overrides
+   ============================================ */
+
+/* --- Skip to content link (a11y) --- */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-primary-600);
+  color: #fff;
+  padding: var(--space-2) var(--space-4);
+  z-index: 10000;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  border-radius: 0 0 var(--radius-md) 0;
+  transition: top var(--transition-fast);
+  text-decoration: none;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
+/* --- Dashboard --- */
+.dashboard-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+/* --- Contact Detail --- */
+.contact-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.contact-detail-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+/* --- Settings --- */
+.settings-layout {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.settings-sidebar {
+  flex: 0 0 200px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.settings-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* --- Org Settings form grids --- */
+.org-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.org-grid-3col {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--space-4);
+}
+
+/* --- Tasks header --- */
+.tasks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   Tablet (≤1024px)
+   ============================================ */
+@media (max-width: 1024px) {
+  .settings-sidebar {
+    flex: 0 0 160px;
+  }
+}
+
+/* ============================================
+   Mobile (≤768px)
+   ============================================ */
+@media (max-width: 768px) {
+  .dashboard-grid-2col {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-detail-header {
+    flex-wrap: wrap;
+  }
+
+  .contact-detail-header > div:first-of-type {
+    flex: 1 1 100%;
+    order: -1;
+  }
+
+  .settings-layout {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .settings-sidebar {
+    flex: none;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: var(--space-1);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--border-primary);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .settings-sidebar button {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .settings-content {
+    flex: none;
+  }
+
+  .org-grid-2col {
+    grid-template-columns: 1fr;
+  }
+
+  .org-grid-3col {
+    grid-template-columns: 1fr;
+  }
+}

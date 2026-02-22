@@ -8,6 +8,7 @@ import { PipelineBoard } from "../components/pipeline/PipelineBoard";
 import { DealForm } from "../components/pipeline/DealForm";
 import { Plus, Kanban, CircleDollarSign } from "lucide-react";
 import { formatCurrency } from "../lib/formatters";
+import { useSubscriptionGate } from "../components/onboarding/SubscriptionGate";
 
 export default function PipelinePage() {
   const { data: dealsData, isLoading: dealsLoading } = useDeals();
@@ -16,6 +17,7 @@ export default function PipelinePage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editDeal, setEditDeal] = useState(null);
   const [defaultStageId, setDefaultStageId] = useState("");
+  const { canWrite } = useSubscriptionGate();
 
   const isLoading = dealsLoading || stagesLoading;
 
@@ -65,7 +67,7 @@ export default function PipelinePage() {
             {totalDeals} oportunidades · {formatCurrency(totalValue)} valor total
           </p>
         </div>
-        <Button leftIcon={Plus} onClick={() => handleAddDeal("")}>
+        <Button leftIcon={Plus} onClick={() => handleAddDeal("")} disabled={!canWrite} title={!canWrite ? "Suscripción requerida" : undefined}>
           Nueva oportunidad
         </Button>
       </div>

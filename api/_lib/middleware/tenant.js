@@ -62,3 +62,18 @@ export async function resolveTenant(auth0Id) {
     throw { status: 500, code: "INTERNAL_ERROR", message: "Error al resolver tenant" };
   }
 }
+
+/**
+ * Guard for write operations (POST, PUT, PATCH, DELETE).
+ * Throws 403 if the tenant's subscription is expired.
+ * Call this after resolveTenant in any mutating endpoint.
+ */
+export function requireActiveSubscription(tenant) {
+  if (tenant.isExpired) {
+    throw {
+      status: 403,
+      code: "SUBSCRIPTION_EXPIRED",
+      message: "Tu suscripción ha expirado. Elige un plan para continuar.",
+    };
+  }
+}

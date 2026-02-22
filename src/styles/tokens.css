@@ -79,7 +79,7 @@
   /* ─── Texto ─── */
   --text-primary:    #0F172A;
   --text-secondary:  #475569;
-  --text-tertiary:   #94A3B8;
+  --text-tertiary:   #6B7280;
   --text-inverse:    #FFFFFF;
   --text-link:       #2563EB;
   --text-link-hover: #1D4ED8;
@@ -223,7 +223,7 @@
   /* ─── Texto ─── */
   --text-primary:    #F1F5F9;
   --text-secondary:  #94A3B8;
-  --text-tertiary:   #64748B;
+  --text-tertiary:   #8896AB;
   --text-inverse:    #0F172A;
   --text-link:       #60A5FA;
   --text-link-hover: #93C5FD;
@@ -262,7 +262,7 @@
 
     --text-primary:    #F1F5F9;
     --text-secondary:  #94A3B8;
-    --text-tertiary:   #64748B;
+    --text-tertiary:   #8896AB;
     --text-inverse:    #0F172A;
     --text-link:       #60A5FA;
     --text-link-hover: #93C5FD;

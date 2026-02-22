@@ -45,3 +45,19 @@ export function useUpdateOrganization() {
     },
   });
 }
+
+export function useInviteMember() {
+  const getToken = useToken();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data) => {
+      const token = await getToken();
+      return apiClient.post("/api/organization/members", data, token);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["organization", "members"] });
+    },
+  });
+}
+

@@ -7,31 +7,29 @@ function useToken() {
   return getAccessTokenSilently;
 }
 
-export function usePipelineStages() {
+export function useProfile() {
   const getToken = useToken();
 
   return useQuery({
-    queryKey: ["pipeline-stages"],
+    queryKey: ["profile"],
     queryFn: async () => {
       const token = await getToken();
-      return apiClient.get("/api/pipeline/stages", token);
+      return apiClient.get("/api/me", token);
     },
-    staleTime: 5 * 60 * 1000, // stages rarely change
   });
 }
 
-export function useUpdatePipelineStages() {
+export function useUpdateProfile() {
   const getToken = useToken();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (stages) => {
+    mutationFn: async (data) => {
       const token = await getToken();
-      return apiClient.put("/api/pipeline/stages", { stages }, token);
+      return apiClient.put("/api/me", data, token);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pipeline-stages"] });
-      queryClient.invalidateQueries({ queryKey: ["deals"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
   });
 }

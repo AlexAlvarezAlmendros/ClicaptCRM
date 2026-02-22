@@ -112,8 +112,8 @@ export default function ContactDetailPage() {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-6)" }}>
-        <Button variant="ghost" size="sm" iconOnly onClick={() => navigate("/contactos")}>
+      <div className="contact-detail-header">
+        <Button variant="ghost" size="sm" iconOnly onClick={() => navigate("/contactos")} aria-label="Volver a contactos">
           <ArrowLeft size={18} />
         </Button>
         <div style={{ flex: 1 }}>
@@ -127,13 +127,13 @@ export default function ContactDetailPage() {
         <Button variant="secondary" leftIcon={Pencil} onClick={() => setEditOpen(true)}>
           Editar
         </Button>
-        <Button variant="ghost" size="sm" iconOnly onClick={() => setDeleteOpen(true)} style={{ color: "var(--color-danger-500)" }}>
+        <Button variant="ghost" size="sm" iconOnly onClick={() => setDeleteOpen(true)} style={{ color: "var(--color-danger-500)" }} aria-label="Eliminar contacto">
           <Trash2 size={18} />
         </Button>
       </div>
 
       {/* Main Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-4)" }}>
+      <div className="contact-detail-grid">
         {/* Left: Info */}
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
           {/* Contact Info Card */}

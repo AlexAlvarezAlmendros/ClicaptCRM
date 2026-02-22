@@ -7,7 +7,7 @@ export function Header() {
   const { user, logout, isAuthenticated } = useAuth0();
 
   return (
-    <header className="app-layout__header">
+    <header className="app-layout__header" role="banner">
       {/* Left side — page title (set via context/props) */}
       <div />
 
