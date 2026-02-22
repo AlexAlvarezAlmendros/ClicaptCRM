@@ -1,11 +1,16 @@
 import { useState, useMemo } from "react";
-import { useDeals } from "../hooks/useDeals";
+import { useDeals, useDeleteDeal } from "../hooks/useDeals";
 import { usePipelineStages } from "../hooks/usePipelineStages";
+import { useIsMobile } from "../hooks/useMediaQuery";
 import { Spinner } from "../components/ui/Spinner";
 import { Button } from "../components/ui/Button";
 import { EmptyState } from "../components/ui/EmptyState";
+import { ConfirmDialog } from "../components/ui/ConfirmDialog";
+import { useToast } from "../components/ui/Toast";
 import { PipelineBoard } from "../components/pipeline/PipelineBoard";
+import { PipelineAccordion } from "../components/pipeline/PipelineAccordion";
 import { DealForm } from "../components/pipeline/DealForm";
+import { DealDetail } from "../components/pipeline/DealDetail";
 import { Plus, Kanban, CircleDollarSign } from "lucide-react";
 import { formatCurrency } from "../lib/formatters";
 import { useSubscriptionGate } from "../components/onboarding/SubscriptionGate";
@@ -13,10 +18,15 @@ import { useSubscriptionGate } from "../components/onboarding/SubscriptionGate";
 export default function PipelinePage() {
   const { data: dealsData, isLoading: dealsLoading } = useDeals();
   const { data: stagesData, isLoading: stagesLoading } = usePipelineStages();
+  const deleteDeal = useDeleteDeal();
+  const { addToast } = useToast();
+  const isMobile = useIsMobile();
 
   const [formOpen, setFormOpen] = useState(false);
   const [editDeal, setEditDeal] = useState(null);
   const [defaultStageId, setDefaultStageId] = useState("");
+  const [detailDeal, setDetailDeal] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const { canWrite } = useSubscriptionGate();
 
   const isLoading = dealsLoading || stagesLoading;
@@ -35,9 +45,30 @@ export default function PipelinePage() {
   }
 
   function handleDealClick(deal) {
+    setDetailDeal(deal);
+  }
+
+  function handleEditFromDetail(deal) {
+    setDetailDeal(null);
     setEditDeal(deal);
     setDefaultStageId("");
     setFormOpen(true);
+  }
+
+  function handleDeleteFromDetail(deal) {
+    setDetailDeal(null);
+    setDeleteConfirm(deal);
+  }
+
+  async function confirmDelete() {
+    if (!deleteConfirm) return;
+    try {
+      await deleteDeal.mutateAsync(deleteConfirm.id);
+      addToast({ type: "success", message: "Oportunidad eliminada" });
+    } catch {
+      addToast({ type: "error", message: "Error al eliminar la oportunidad" });
+    }
+    setDeleteConfirm(null);
   }
 
   if (isLoading) {
@@ -79,6 +110,14 @@ export default function PipelinePage() {
           title="Sin etapas configuradas"
           description="Las etapas del pipeline se crean automáticamente al completar el registro. Si no aparecen, contacta con soporte."
         />
+      ) : isMobile ? (
+        <PipelineAccordion
+          stages={stages}
+          deals={deals}
+          onDealClick={handleDealClick}
+          onAddDeal={handleAddDeal}
+          canWrite={canWrite}
+        />
       ) : (
         <PipelineBoard
           stages={stages}
@@ -94,6 +133,27 @@ export default function PipelinePage() {
         onClose={() => { setFormOpen(false); setEditDeal(null); }}
         deal={editDeal}
         defaultStageId={defaultStageId}
+      />
+
+      {/* Deal Detail Drawer */}
+      <DealDetail
+        deal={detailDeal}
+        isOpen={!!detailDeal}
+        onClose={() => setDetailDeal(null)}
+        onEdit={handleEditFromDetail}
+        onDelete={handleDeleteFromDetail}
+      />
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        isOpen={!!deleteConfirm}
+        title="Eliminar oportunidad"
+        message={`¿Estás seguro de eliminar "${deleteConfirm?.title}"? Esta acción no se puede deshacer.`}
+        confirmLabel="Eliminar"
+        variant="danger"
+        isLoading={deleteDeal.isPending}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm(null)}
       />
     </div>
   );

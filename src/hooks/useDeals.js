@@ -78,3 +78,18 @@ export function useMoveDealStage() {
     },
   });
 }
+
+export function useDeleteDeal() {
+  const getToken = useToken();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id) => {
+      const token = await getToken();
+      return apiClient.delete(`/api/deals/${id}`, token);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["deals"] });
+    },
+  });
+}

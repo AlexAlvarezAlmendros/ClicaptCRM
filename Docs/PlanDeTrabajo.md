@@ -44,8 +44,8 @@
 | 2.2 | `PipelineColumn.jsx` — Columna de etapa con drop zone | ✅ |
 | 2.3 | `DealCard.jsx` — Tarjeta de oportunidad (valor, contacto, probabilidad) | ✅ |
 | 2.4 | `DealForm.jsx` — Drawer crear/editar oportunidad | ✅ |
-| 2.5 | `DealDetail.jsx` — Modal/Drawer con info completa, notas, historial | ⬜ |
-| 2.6 | `PipelineAccordion.jsx` — Vista alternativa móvil (acordeón por etapas) | ⬜ |
+| 2.5 | `DealDetail.jsx` — Modal/Drawer con info completa, notas, historial | ✅ |
+| 2.6 | `PipelineAccordion.jsx` — Vista alternativa móvil (acordeón por etapas) | ✅ |
 | 2.7 | Cablear `PipelinePage.jsx` — Integrar componentes + drag & drop real | ✅ |
 
 ---
