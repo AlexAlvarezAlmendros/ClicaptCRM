@@ -1,10 +1,16 @@
-import { useAuth0 } from "@auth0/auth0-react";
+import { useAuth, useLogout } from "@alexalvarez.dev/react";
 import { Avatar } from "../ui/Avatar";
 import { Button } from "../ui/Button";
 import { LogOut } from "lucide-react";
 
 export function Header() {
-  const { user, logout, isAuthenticated } = useAuth0();
+  const { user, isAuthenticated } = useAuth();
+  const { logout } = useLogout();
+
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = "/login";
+  };
 
   return (
     <header className="app-layout__header" role="banner">
@@ -14,7 +20,7 @@ export function Header() {
       {/* Right side — user info */}
       {isAuthenticated && user && (
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-          <Avatar src={user.picture} name={user.name || user.email} size={32} />
+          <Avatar src={user.avatar_url} name={user.name || user.email} size={32} />
           <span
             style={{
               fontSize: "var(--text-sm)",
@@ -28,7 +34,7 @@ export function Header() {
             variant="ghost"
             size="sm"
             iconOnly
-            onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+            onClick={handleLogout}
             aria-label="Cerrar sesión"
           >
             <LogOut size={18} />

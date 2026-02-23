@@ -1,11 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { useAuth0 } from "@auth0/auth0-react";
 import { apiClient } from "../lib/api";
-
-function useToken() {
-  const { getAccessTokenSilently } = useAuth0();
-  return getAccessTokenSilently;
-}
+import { useToken } from "./useToken";
 
 /**
  * Create a Stripe Checkout Session and redirect to Stripe.

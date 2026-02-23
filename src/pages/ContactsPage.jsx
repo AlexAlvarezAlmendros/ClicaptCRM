@@ -14,7 +14,7 @@ import { ContactFilters } from "../components/contacts/ContactFilters";
 import { ContactCard } from "../components/contacts/ContactCard";
 import { Plus, Search, Users, ChevronLeft, ChevronRight, Filter, Download, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
+import { useToken } from "../hooks/useToken";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "../lib/formatters";
 import { useSubscriptionGate } from "../components/onboarding/SubscriptionGate";
@@ -42,7 +42,7 @@ export default function ContactsPage() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { canWrite } = useSubscriptionGate();
-  const { getAccessTokenSilently } = useAuth0();
+  const getToken = useToken();
   const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
   const [importing, setImporting] = useState(false);
@@ -81,7 +81,7 @@ export default function ContactsPage() {
   // CSV Export
   async function handleExport() {
     try {
-      const token = await getAccessTokenSilently();
+      const token = await getToken();
       const response = await fetch("/api/contacts/export", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -104,7 +104,7 @@ export default function ContactsPage() {
     setImporting(true);
     try {
       const text = await file.text();
-      const token = await getAccessTokenSilently();
+      const token = await getToken();
       const result = await apiClient.post("/api/contacts/import", { csv: text }, token);
       queryClient.invalidateQueries({ queryKey: ["contacts"] });
       alert(`Importados: ${result.data?.imported || 0} — Omitidos: ${result.data?.skipped || 0}`);

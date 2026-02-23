@@ -1,19 +1,20 @@
 import { useEffect } from "react";
-import { useAuth0 } from "@auth0/auth0-react";
+import { useAuth } from "@alexalvarez.dev/react";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from "../components/ui/Spinner";
 import { apiClient } from "../lib/api";
+import { useToken } from "../hooks/useToken";
 
 export default function CallbackPage() {
-  const { isAuthenticated, isLoading, getAccessTokenSilently, user } = useAuth0();
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const getToken = useToken();
   const navigate = useNavigate();
 
   useEffect(() => {
     async function syncUser() {
       if (!isAuthenticated) return;
       try {
-        const token = await getAccessTokenSilently();
-        // Send user email from Auth0 profile as fallback (access tokens may not include it)
+        const token = await getToken();
         await apiClient.post("/api/auth/callback", { email: user?.email, name: user?.name }, token);
       } catch {
         // User may already exist — continue
@@ -24,7 +25,7 @@ export default function CallbackPage() {
     if (!isLoading) {
       syncUser();
     }
-  }, [isAuthenticated, isLoading, getAccessTokenSilently, user, navigate]);
+  }, [isAuthenticated, isLoading, getToken, user, navigate]);
 
   return (
     <div

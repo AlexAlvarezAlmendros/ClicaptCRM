@@ -1,10 +1,9 @@
 // LeadFlow CRM — Config — Centralized environment variables
 
 const config = {
-  // Auth0
-  auth0: {
-    domain: process.env.AUTH0_DOMAIN,
-    audience: process.env.AUTH0_AUDIENCE,
+  // SimpleAuth
+  auth: {
+    jwtSecret: process.env.JWT_SECRET,
   },
 
   // Turso

@@ -1,20 +1,21 @@
 import { useState } from "react";
-import { useLogin } from "@alexalvarez.dev/react";
+import { useRegister } from "@alexalvarez.dev/react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Zap } from "lucide-react";
 
-export default function LoginPage() {
-  const { login, isLoading, error } = useLogin();
+export default function RegisterPage() {
+  const { register, isLoading, error } = useRegister();
   const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(email, password);
+      await register(email, password, name);
       navigate("/dashboard", { replace: true });
     } catch {
       // error is available via the hook
@@ -61,10 +62,10 @@ export default function LoginPage() {
         </div>
 
         <h1 className="text-h1" style={{ marginBottom: "var(--space-2)" }}>
-          LeadFlow CRM
+          Crear cuenta
         </h1>
         <p className="text-body-sm" style={{ marginBottom: "var(--space-8)" }}>
-          Gestiona tus contactos y oportunidades de venta de forma eficiente.
+          Regístrate para empezar a gestionar tus contactos y ventas.
         </p>
 
         {error && (
@@ -81,6 +82,12 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
           <Input
+            placeholder="Nombre"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+          <Input
             type="email"
             placeholder="Email"
             value={email}
@@ -89,10 +96,11 @@ export default function LoginPage() {
           />
           <Input
             type="password"
-            placeholder="Contraseña"
+            placeholder="Contraseña (mín. 8 caracteres)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            minLength={8}
           />
 
           <Button
@@ -102,7 +110,7 @@ export default function LoginPage() {
             disabled={isLoading}
             style={{ width: "100%", marginTop: "var(--space-2)" }}
           >
-            {isLoading ? "Entrando…" : "Iniciar sesión"}
+            {isLoading ? "Registrando…" : "Crear cuenta"}
           </Button>
         </form>
 
@@ -110,9 +118,9 @@ export default function LoginPage() {
           className="text-caption"
           style={{ marginTop: "var(--space-4)" }}
         >
-          ¿No tienes cuenta?{" "}
-          <Link to="/register" style={{ color: "var(--color-primary-500)", textDecoration: "none" }}>
-            Crear cuenta
+          ¿Ya tienes cuenta?{" "}
+          <Link to="/login" style={{ color: "var(--color-primary-500)", textDecoration: "none" }}>
+            Iniciar sesión
           </Link>
         </p>
       </div>

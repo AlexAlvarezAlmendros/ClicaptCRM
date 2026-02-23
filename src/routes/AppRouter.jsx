@@ -3,6 +3,7 @@ import { AppLayout } from "../components/layout/AppLayout";
 import { ProtectedRoute } from "../components/layout/ProtectedRoute";
 import { ErrorBoundary } from "../components/ui/ErrorBoundary";
 import LoginPage from "../pages/LoginPage";
+import RegisterPage from "../pages/RegisterPage";
 import CallbackPage from "../pages/CallbackPage";
 import DashboardPage from "../pages/DashboardPage";
 import ContactsPage from "../pages/ContactsPage";
@@ -18,6 +19,7 @@ export function AppRouter() {
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/callback" element={<CallbackPage />} />
 
         {/* Protected routes with layout */}

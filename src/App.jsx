@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Auth0Provider } from "@auth0/auth0-react";
-import { auth0Config } from "./lib/auth0";
+import { SimpleAuthProvider } from "@alexalvarez.dev/react";
+import { simpleAuthConfig } from "./lib/auth";
 import { ToastProvider } from "./components/ui/Toast";
 import { AppRouter } from "./routes/AppRouter";
 
@@ -16,12 +16,15 @@ const queryClient = new QueryClient({
 
 export default function App() {
   return (
-    <Auth0Provider {...auth0Config}>
+    <SimpleAuthProvider
+      domain={simpleAuthConfig.domain}
+      clientId={simpleAuthConfig.clientId}
+    >
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
           <AppRouter />
         </ToastProvider>
       </QueryClientProvider>
-    </Auth0Provider>
+    </SimpleAuthProvider>
   );
 }
