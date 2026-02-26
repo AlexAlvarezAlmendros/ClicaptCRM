@@ -6,6 +6,7 @@ export const CONTACT_SOURCES = [
   { value: "cold_call", label: "Llamada fría" },
   { value: "event", label: "Evento" },
   { value: "linkedin", label: "LinkedIn" },
+  { value: "import", label: "Importado" },
   { value: "other", label: "Otro" },
 ];
 

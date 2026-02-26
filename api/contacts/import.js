@@ -13,7 +13,7 @@ const ALLOWED_FIELDS = new Set([
 ]);
 
 const VALID_STATUSES = ["new", "contacted", "qualified", "customer", "lost"];
-const VALID_SOURCES = ["web", "referral", "cold_call", "event", "linkedin", "other"];
+const VALID_SOURCES = ["web", "referral", "cold_call", "event", "linkedin", "import", "other"];
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -61,10 +61,10 @@ export default async function handler(req, res) {
 
       try {
         const status = VALID_STATUSES.includes(row.status) ? row.status : "new";
-        const source = VALID_SOURCES.includes(row.source) ? row.source : "other";
+        const source = VALID_SOURCES.includes(row.source) ? row.source : "import";
 
-        await db.execute({
-          sql: `INSERT INTO contacts (id, organization_id, name, surname, email, phone,
+        const result = await db.execute({
+          sql: `INSERT OR IGNORE INTO contacts (id, organization_id, name, surname, email, phone,
                 company, job_title, website, source, status, notes, created_by, created_at, updated_at)
                 VALUES (lower(hex(randomblob(16))), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
           args: [
@@ -82,7 +82,13 @@ export default async function handler(req, res) {
             tenant.userId,
           ],
         });
-        imported++;
+        // rowsAffected = 0 means duplicate was ignored
+        if (result.rowsAffected > 0) {
+          imported++;
+        } else {
+          skipped++;
+          errors.push({ row: row.name || row.email, error: "Contacto duplicado (email ya existe)" });
+        }
       } catch (err) {
         skipped++;
         errors.push({ row: row.name || row.email, error: err.message });

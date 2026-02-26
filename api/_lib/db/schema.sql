@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS contacts (
     city              TEXT,
     postal_code       TEXT,
     country           TEXT DEFAULT 'España',
-    source            TEXT DEFAULT 'other' CHECK (source IN ('web', 'referral', 'cold_call', 'event', 'linkedin', 'other')),
+    source            TEXT DEFAULT 'other' CHECK (source IN ('web', 'referral', 'cold_call', 'event', 'linkedin', 'import', 'other')),
     status            TEXT DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'qualified', 'customer', 'lost')),
     notes             TEXT,
     assigned_to       TEXT REFERENCES users(id),
