@@ -2,10 +2,12 @@ import { useState, useCallback, useMemo, useRef } from "react";
 import { Drawer } from "../ui/Drawer";
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
+import { Select } from "../ui/Select";
 import { Table } from "../ui/Table";
 import { Spinner } from "../ui/Spinner";
 import { useToast } from "../ui/Toast";
 import { useToken } from "../../hooks/useToken";
+import { useGroups } from "../../hooks/useGroups";
 import { apiClient } from "../../lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -180,11 +182,15 @@ export function CSVImportWizard({ isOpen, onClose }) {
   const [dragActive, setDragActive] = useState(false);
   const [importResult, setImportResult] = useState(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState("");
   const fileInputRef = useRef(null);
 
   const getToken = useToken();
   const queryClient = useQueryClient();
   const { addToast } = useToast();
+  const { data: groupsData } = useGroups();
+  const groups = groupsData?.data || [];
+  const groupOptions = groups.map((g) => ({ value: String(g.id), label: g.name }));
 
   // Reset wizard state
   const resetWizard = useCallback(() => {
@@ -195,6 +201,7 @@ export function CSVImportWizard({ isOpen, onClose }) {
     setImportResult(null);
     setIsImporting(false);
     setDragActive(false);
+    setSelectedGroupId("");
   }, []);
 
   const handleClose = useCallback(() => {
@@ -329,7 +336,7 @@ export function CSVImportWizard({ isOpen, onClose }) {
 
       const result = await apiClient.post(
         "/api/contacts/import",
-        { rows, mappings: mapping },
+        { rows, mappings: mapping, group_id: selectedGroupId || undefined },
         token
       );
 
@@ -345,7 +352,7 @@ export function CSVImportWizard({ isOpen, onClose }) {
     } finally {
       setIsImporting(false);
     }
-  }, [getToken, mapping, csvData.rows, queryClient, addToast]);
+  }, [getToken, mapping, csvData.rows, queryClient, addToast, selectedGroupId]);
 
   return (
     <Drawer isOpen={isOpen} onClose={handleClose} title="Importar contactos" width="720px">
@@ -384,6 +391,9 @@ export function CSVImportWizard({ isOpen, onClose }) {
             totalRows={csvData.rows.length}
             onBack={() => setStep("mapping")}
             onImport={handleImport}
+            groupOptions={groupOptions}
+            selectedGroupId={selectedGroupId}
+            onGroupChange={setSelectedGroupId}
           />
         )}
 
@@ -697,7 +707,7 @@ function MappingStep({ headers, sampleRows, mapping, onMappingChange, mappingVal
 }
 
 /* ─── Step 3: Preview ─── */
-function PreviewStep({ data, fields, totalRows, onBack, onImport }) {
+function PreviewStep({ data, fields, totalRows, onBack, onImport, groupOptions, selectedGroupId, onGroupChange }) {
   const showing = Math.min(data.length, 50);
 
   return (
@@ -788,6 +798,35 @@ function PreviewStep({ data, fields, totalRows, onBack, onImport }) {
         <Info size={16} />
         Los contactos sin nombre ni email serán omitidos. Si algún campo contiene varios valores separados por «/» o «|», se usará el primero.
       </div>
+
+      {/* Group selector */}
+      {groupOptions.length > 0 && (
+        <div
+          style={{
+            marginTop: "var(--space-4)",
+            padding: "var(--space-3) var(--space-4)",
+            background: "var(--surface-secondary)",
+            borderRadius: "var(--radius-md)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-3)",
+          }}
+        >
+          <div style={{ flex: 1, maxWidth: 280 }}>
+            <Select
+              label="Asignar grupo"
+              name="group_id"
+              value={selectedGroupId}
+              onChange={(e) => onGroupChange(e.target.value)}
+              options={groupOptions}
+              placeholder="Sin grupo"
+            />
+          </div>
+          <p style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginTop: 18 }}>
+            Todos los contactos importados se asignarán a este grupo.
+          </p>
+        </div>
+      )}
 
       {/* Actions */}
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: "var(--space-5)" }}>

@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     const tenant = await resolveTenant(authUser);
     requireActiveSubscription(tenant);
 
-    const { rows } = req.body;
+    const { rows, group_id } = req.body;
 
     if (!rows || !Array.isArray(rows) || rows.length === 0) {
       return sendError(res, 400, "INVALID_INPUT", "Se requiere un array 'rows' con los contactos mapeados");
@@ -65,8 +65,8 @@ export default async function handler(req, res) {
 
         const result = await db.execute({
           sql: `INSERT OR IGNORE INTO contacts (id, organization_id, name, surname, email, phone,
-                company, job_title, website, source, status, notes, created_by, created_at, updated_at)
-                VALUES (lower(hex(randomblob(16))), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+                company, job_title, website, source, status, notes, group_id, created_by, created_at, updated_at)
+                VALUES (lower(hex(randomblob(16))), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
           args: [
             tenant.orgId,
             row.name || "",
@@ -79,6 +79,7 @@ export default async function handler(req, res) {
             source,
             status,
             row.notes || null,
+            group_id || null,
             tenant.userId,
           ],
         });
