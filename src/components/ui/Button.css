@@ -88,6 +88,17 @@
   color: var(--text-primary);
 }
 
+/* Ghost icon buttons need visible resting state */
+.btn--ghost.btn--icon {
+  color: var(--text-primary);
+  background: var(--surface-secondary);
+  border-color: var(--border-default);
+}
+.btn--ghost.btn--icon:hover {
+  background: var(--surface-tertiary);
+  border-color: var(--border-hover);
+}
+
 /* Danger — Acción destructiva */
 .btn--danger {
   background: var(--color-danger-500);
@@ -113,10 +124,24 @@
   text-decoration: underline;
 }
 
+/* Outline — Borde visible */
+.btn--outline {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+.btn--outline:hover {
+  background: var(--surface-secondary);
+  border-color: var(--border-hover);
+}
+
 /* Icon only */
 .btn--icon {
   width: 40px;
   padding: 0;
+}
+.btn--icon.btn--sm {
+  width: 32px;
 }
 .btn--icon.btn--sm { width: 32px; }
 .btn--icon.btn--lg { width: 48px; }
