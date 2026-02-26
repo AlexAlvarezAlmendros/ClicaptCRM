@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useContacts } from "../hooks/useContacts";
+import { useContacts, useUpdateContact } from "../hooks/useContacts";
 import { useFiltersStore } from "../stores/filtersStore";
 import { useIsMobile } from "../hooks/useMediaQuery";
 import { useDebounce } from "../hooks/useDebounce";
@@ -22,7 +22,7 @@ import { SkeletonTable } from "../components/ui/Skeleton";
 import { Drawer } from "../components/ui/Drawer";
 import { useCreateGroup } from "../hooks/useGroups";
 import { useToast } from "../components/ui/Toast";
-import { Select } from "../components/ui/Select";
+import { CONTACT_STATUSES } from "../lib/constants";
 
 const GROUP_COLORS = [
   { value: "#3B82F6", label: "Azul" },
@@ -64,6 +64,7 @@ export default function ContactsPage() {
   const getToken = useToken();
   const queryClient = useQueryClient();
   const createGroup = useCreateGroup();
+  const updateContact = useUpdateContact();
   const { addToast } = useToast();
 
   // Build query params from store + debounced search
@@ -263,7 +264,39 @@ export default function ContactsPage() {
                     <Table.Td>{contact.company || "—"}</Table.Td>
                     <Table.Td>{contact.email || "—"}</Table.Td>
                     <Table.Td>
-                      <Badge variant={status.variant} dot>{status.label}</Badge>
+                      <select
+                        value={contact.status}
+                        onChange={async (e) => {
+                          e.stopPropagation();
+                          try {
+                            await updateContact.mutateAsync({ id: contact.id, data: { status: e.target.value } });
+                          } catch {
+                            addToast({ type: "error", message: "Error al cambiar estado" });
+                          }
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                          appearance: "none",
+                          WebkitAppearance: "none",
+                          background: `var(--color-${status.variant === 'primary' ? 'primary' : status.variant === 'success' ? 'success' : status.variant === 'warning' ? 'warning' : status.variant === 'danger' ? 'danger' : 'neutral'}-100)`,
+                          color: `var(--color-${status.variant === 'primary' ? 'primary' : status.variant === 'success' ? 'success' : status.variant === 'warning' ? 'warning' : status.variant === 'danger' ? 'danger' : 'neutral'}-700)`,
+                          border: "none",
+                          borderRadius: "var(--radius-full)",
+                          padding: "4px 12px",
+                          fontSize: "var(--text-xs)",
+                          fontWeight: "var(--font-weight-medium)",
+                          cursor: "pointer",
+                          outline: "none",
+                          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+                          backgroundRepeat: "no-repeat",
+                          backgroundPosition: "right 6px center",
+                          paddingRight: "24px",
+                        }}
+                      >
+                        {CONTACT_STATUSES.map((s) => (
+                          <option key={s.value} value={s.value}>{s.label}</option>
+                        ))}
+                      </select>
                     </Table.Td>
                     <Table.Td>
                       <span style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)" }}>
