@@ -284,9 +284,9 @@ export function CSVImportWizard({ isOpen, onClose }) {
       const obj = {};
       for (const [colIdx, field] of mappedCols) {
         let value = row[Number(colIdx)] || "";
-        // Take only the first value when separated by /
-        if ((field === "phone" || field === "email") && value.includes("/")) {
-          value = value.split("/")[0].trim();
+        // Take only the first value when separated by / or |
+        if (value && /[/|]/.test(value)) {
+          value = value.split(/[/|]/)[0].trim();
         }
         obj[field] = value;
       }
@@ -318,9 +318,9 @@ export function CSVImportWizard({ isOpen, onClose }) {
         const obj = {};
         for (const [colIdx, field] of mappedCols) {
           let value = row[Number(colIdx)] || "";
-          // Take only the first value when separated by /
-          if ((field === "phone" || field === "email") && value.includes("/")) {
-            value = value.split("/")[0].trim();
+          // Take only the first value when separated by / or |
+          if (value && /[/|]/.test(value)) {
+            value = value.split(/[/|]/)[0].trim();
           }
           obj[field] = value;
         }
@@ -786,7 +786,7 @@ function PreviewStep({ data, fields, totalRows, onBack, onImport }) {
         }}
       >
         <Info size={16} />
-        Los contactos sin nombre ni email serán omitidos. Si el teléfono o email contienen varios valores separados por «/», se usará el primero.
+        Los contactos sin nombre ni email serán omitidos. Si algún campo contiene varios valores separados por «/» o «|», se usará el primero.
       </div>
 
       {/* Actions */}

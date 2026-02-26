@@ -32,15 +32,15 @@ export default async function handler(req, res) {
       return sendError(res, 400, "INVALID_INPUT", "Se requiere un array 'rows' con los contactos mapeados");
     }
 
-    // Sanitize: only keep allowed fields, split / for phone and email
+    // Sanitize: only keep allowed fields, split / or | and take first value
     const sanitizedRows = rows.map((row) => {
       const clean = {};
       for (const [key, value] of Object.entries(row)) {
         if (ALLOWED_FIELDS.has(key) && typeof value === "string" && value.trim()) {
           let val = value.trim();
-          // Take only the first value when separated by /
-          if ((key === "phone" || key === "email") && val.includes("/")) {
-            val = val.split("/")[0].trim();
+          // Take only the first value when separated by / or |
+          if (/[/|]/.test(val)) {
+            val = val.split(/[/|]/)[0].trim();
           }
           clean[key] = val;
         }
