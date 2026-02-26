@@ -12,13 +12,30 @@ import { ContactForm } from "../components/contacts/ContactForm";
 import { ContactFilters } from "../components/contacts/ContactFilters";
 import { ContactCard } from "../components/contacts/ContactCard";
 import { CSVImportWizard } from "../components/contacts/CSVImportWizard";
-import { Plus, Search, Users, ChevronLeft, ChevronRight, Filter, Download, Upload } from "lucide-react";
+import { Plus, Search, Users, ChevronLeft, ChevronRight, Filter, Download, Upload, FolderPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToken } from "../hooks/useToken";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "../lib/formatters";
 import { useSubscriptionGate } from "../components/onboarding/SubscriptionGate";
 import { SkeletonTable } from "../components/ui/Skeleton";
+import { Drawer } from "../components/ui/Drawer";
+import { useCreateGroup } from "../hooks/useGroups";
+import { useToast } from "../components/ui/Toast";
+import { Select } from "../components/ui/Select";
+
+const GROUP_COLORS = [
+  { value: "#3B82F6", label: "Azul" },
+  { value: "#10B981", label: "Verde" },
+  { value: "#F59E0B", label: "Ámbar" },
+  { value: "#EF4444", label: "Rojo" },
+  { value: "#8B5CF6", label: "Violeta" },
+  { value: "#EC4899", label: "Rosa" },
+  { value: "#06B6D4", label: "Cian" },
+  { value: "#F97316", label: "Naranja" },
+  { value: "#6B7280", label: "Gris" },
+  { value: "#14B8A6", label: "Teal" },
+];
 
 const STATUS_BADGES = {
   new: { label: "Nuevo", variant: "primary" },
@@ -38,12 +55,16 @@ export default function ContactsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [groupOpen, setGroupOpen] = useState(false);
+  const [groupForm, setGroupForm] = useState({ name: "", color: "#3B82F6", description: "" });
 
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { canWrite } = useSubscriptionGate();
   const getToken = useToken();
   const queryClient = useQueryClient();
+  const createGroup = useCreateGroup();
+  const { addToast } = useToast();
 
   // Build query params from store + debounced search
   const queryParams = {
@@ -96,6 +117,19 @@ export default function ContactsPage() {
     }
   }
 
+  // Group creation
+  async function handleCreateGroup(e) {
+    e.preventDefault();
+    if (!groupForm.name.trim()) return;
+    try {
+      await createGroup.mutateAsync(groupForm);
+      addToast({ type: "success", message: "Grupo creado" });
+      setGroupForm({ name: "", color: "#3B82F6", description: "" });
+      setGroupOpen(false);
+    } catch (err) {
+      addToast({ type: "error", message: err.message || "Error al crear grupo" });
+    }
+  }
 
 
   return (
@@ -118,6 +152,9 @@ export default function ContactsPage() {
           </Button>
           <Button variant="outline" size="sm" leftIcon={Upload} onClick={() => setImportOpen(true)} disabled={!canWrite}>
             Importar
+          </Button>
+          <Button variant="outline" size="sm" leftIcon={FolderPlus} onClick={() => setGroupOpen(true)} disabled={!canWrite}>
+            Nuevo grupo
           </Button>
           <Button leftIcon={Plus} onClick={() => setFormOpen(true)} disabled={!canWrite} title={!canWrite ? "Suscripción requerida" : undefined}>
             Nuevo contacto
@@ -292,6 +329,68 @@ export default function ContactsPage() {
         isOpen={importOpen}
         onClose={() => setImportOpen(false)}
       />
+
+      {/* Group Creation Drawer */}
+      <Drawer
+        isOpen={groupOpen}
+        onClose={() => { setGroupOpen(false); setGroupForm({ name: "", color: "#3B82F6", description: "" }); }}
+        title="Nuevo grupo"
+        width="380px"
+      >
+        <form onSubmit={handleCreateGroup} style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+          <Input
+            label="Nombre del grupo"
+            name="name"
+            value={groupForm.name}
+            onChange={(e) => setGroupForm((f) => ({ ...f, name: e.target.value }))}
+            placeholder="Ej: Agencias, Proveedores..."
+            required
+            autoFocus
+          />
+
+          <div>
+            <label className="input-label" style={{ marginBottom: "var(--space-2)", display: "block" }}>Color</label>
+            <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+              {GROUP_COLORS.map((c) => (
+                <button
+                  key={c.value}
+                  type="button"
+                  onClick={() => setGroupForm((f) => ({ ...f, color: c.value }))}
+                  title={c.label}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: "var(--radius-full)",
+                    background: c.value,
+                    border: groupForm.color === c.value ? "3px solid var(--text-primary)" : "2px solid transparent",
+                    cursor: "pointer",
+                    transition: "border 0.15s",
+                    outline: groupForm.color === c.value ? "2px solid var(--bg-primary)" : "none",
+                  }}
+                  aria-label={c.label}
+                />
+              ))}
+            </div>
+          </div>
+
+          <Input
+            label="Descripción (opcional)"
+            name="description"
+            value={groupForm.description}
+            onChange={(e) => setGroupForm((f) => ({ ...f, description: e.target.value }))}
+            placeholder="Descripción breve del grupo..."
+          />
+
+          <div style={{ display: "flex", gap: "var(--space-3)", justifyContent: "flex-end", paddingTop: "var(--space-4)", borderTop: "1px solid var(--border-default)" }}>
+            <Button type="button" variant="secondary" onClick={() => { setGroupOpen(false); setGroupForm({ name: "", color: "#3B82F6", description: "" }); }}>
+              Cancelar
+            </Button>
+            <Button type="submit" isLoading={createGroup.isPending} disabled={!groupForm.name.trim()}>
+              Crear grupo
+            </Button>
+          </div>
+        </form>
+      </Drawer>
     </div>
   );
 }
