@@ -1,28 +1,27 @@
 import { useState, useCallback } from "react";
 import { useContacts, useUpdateContact } from "../hooks/useContacts";
+import { useCreateActivity } from "../hooks/useActivities";
 import { useFiltersStore } from "../stores/filtersStore";
 import { useIsMobile } from "../hooks/useMediaQuery";
 import { useDebounce } from "../hooks/useDebounce";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Table } from "../components/ui/Table";
-import { Badge } from "../components/ui/Badge";
 import { EmptyState } from "../components/ui/EmptyState";
 import { ContactForm } from "../components/contacts/ContactForm";
 import { ContactFilters } from "../components/contacts/ContactFilters";
 import { ContactCard } from "../components/contacts/ContactCard";
 import { CSVImportWizard } from "../components/contacts/CSVImportWizard";
-import { Plus, Search, Users, ChevronLeft, ChevronRight, Filter, Download, Upload, FolderPlus } from "lucide-react";
+import { Plus, Search, Users, ChevronLeft, ChevronRight, Filter, Download, Upload, FolderPlus, Phone, Mail, Calendar, FileText, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToken } from "../hooks/useToken";
 import { useQueryClient } from "@tanstack/react-query";
-import { formatDate } from "../lib/formatters";
 import { useSubscriptionGate } from "../components/onboarding/SubscriptionGate";
 import { SkeletonTable } from "../components/ui/Skeleton";
 import { Drawer } from "../components/ui/Drawer";
 import { useCreateGroup } from "../hooks/useGroups";
 import { useToast } from "../components/ui/Toast";
-import { CONTACT_STATUSES } from "../lib/constants";
+import { CONTACT_STATUSES, ACTIVITY_TYPES } from "../lib/constants";
 
 const GROUP_COLORS = [
   { value: "#3B82F6", label: "Azul" },
@@ -57,6 +56,8 @@ export default function ContactsPage() {
   const [importOpen, setImportOpen] = useState(false);
   const [groupOpen, setGroupOpen] = useState(false);
   const [groupForm, setGroupForm] = useState({ name: "", color: "#3B82F6", description: "" });
+  const [editingCell, setEditingCell] = useState(null);
+  const [activityForm, setActivityForm] = useState(null);
 
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -65,6 +66,7 @@ export default function ContactsPage() {
   const queryClient = useQueryClient();
   const createGroup = useCreateGroup();
   const updateContact = useUpdateContact();
+  const createActivity = useCreateActivity();
   const { addToast } = useToast();
 
   // Build query params from store + debounced search
@@ -118,6 +120,76 @@ export default function ContactsPage() {
       console.error("Export failed:", err);
     }
   }
+
+  // Inline editing
+  function startInlineEdit(contactId, field, currentValue) {
+    setEditingCell({ contactId, field, value: currentValue || "" });
+  }
+
+  async function saveInlineEdit() {
+    if (!editingCell) return;
+    try {
+      await updateContact.mutateAsync({
+        id: editingCell.contactId,
+        data: { [editingCell.field]: editingCell.value },
+      });
+    } catch {
+      addToast({ type: "error", message: "Error al guardar" });
+    }
+    setEditingCell(null);
+  }
+
+  function cancelInlineEdit() {
+    setEditingCell(null);
+  }
+
+  // Inline activity registration
+  async function saveInlineActivity() {
+    if (!activityForm) return;
+    try {
+      await createActivity.mutateAsync({
+        contact_id: activityForm.contactId,
+        type: activityForm.type,
+        description: activityForm.description || null,
+      });
+      addToast({ type: "success", message: "Actividad registrada" });
+    } catch {
+      addToast({ type: "error", message: "Error al registrar actividad" });
+    }
+    setActivityForm(null);
+  }
+
+  const ACTIVITY_ICONS = [
+    { type: "call", Icon: Phone, label: "Llamada" },
+    { type: "email", Icon: Mail, label: "Email" },
+    { type: "meeting", Icon: Calendar, label: "Reunión" },
+    { type: "note", Icon: FileText, label: "Nota" },
+  ];
+
+  const inlineInputStyle = {
+    width: "100%",
+    padding: "4px 8px",
+    fontSize: "var(--text-sm)",
+    border: "1px solid var(--border-active)",
+    borderRadius: "var(--radius-sm)",
+    background: "var(--bg-primary)",
+    color: "var(--text-primary)",
+    outline: "none",
+  };
+
+  const miniIconBtnStyle = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 26,
+    height: 26,
+    border: "1px solid var(--border-default)",
+    borderRadius: "var(--radius-sm)",
+    background: "var(--bg-secondary)",
+    color: "var(--text-secondary)",
+    cursor: "pointer",
+    padding: 0,
+  };
 
   // Group creation
   async function handleCreateGroup(e) {
@@ -236,16 +308,16 @@ export default function ContactsPage() {
         </div>
       ) : (
         /* Desktop: Table view */
-        <div className="card">
+        <div className="card" style={{ overflowX: "auto" }}>
           <Table>
             <Table.Head>
               <tr>
-                <Table.Th>Nombre</Table.Th>
                 <Table.Th>Empresa</Table.Th>
                 <Table.Th>Email</Table.Th>
+                <Table.Th>Teléfono</Table.Th>
                 <Table.Th>Estado</Table.Th>
-                <Table.Th>Origen</Table.Th>
-                <Table.Th>Creado</Table.Th>
+                <Table.Th>Notas</Table.Th>
+                <Table.Th>Actividad</Table.Th>
               </tr>
             </Table.Head>
             <Table.Body>
@@ -256,30 +328,66 @@ export default function ContactsPage() {
                     key={contact.id}
                     onClick={() => navigate(`/contactos/${contact.id}`)}
                   >
+                    {/* Empresa + nombre */}
                     <Table.Td>
-                      <span style={{ fontWeight: "var(--font-weight-medium)" }}>
-                        {contact.name} {contact.surname || ""}
-                      </span>
+                      <div style={{ lineHeight: 1.3 }}>
+                        <span style={{ fontWeight: "var(--font-weight-medium)" }}>
+                          {contact.company || "—"}
+                        </span>
+                        <br />
+                        <span style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)" }}>
+                          {contact.name} {contact.surname || ""}
+                        </span>
+                      </div>
                     </Table.Td>
-                    <Table.Td>{contact.company || "—"}</Table.Td>
-                    <Table.Td>{contact.email || "—"}</Table.Td>
+
+                    {/* Email — editable */}
+                    <Table.Td onClick={(e) => e.stopPropagation()}>
+                      {editingCell?.contactId === contact.id && editingCell?.field === "email" ? (
+                        <input
+                          autoFocus
+                          type="email"
+                          value={editingCell.value}
+                          onChange={(e) => setEditingCell((prev) => ({ ...prev, value: e.target.value }))}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") saveInlineEdit();
+                            if (e.key === "Escape") cancelInlineEdit();
+                          }}
+                          onBlur={saveInlineEdit}
+                          style={inlineInputStyle}
+                        />
+                      ) : (
+                        <span
+                          onClick={() => startInlineEdit(contact.id, "email", contact.email)}
+                          style={{ cursor: "pointer", fontSize: "var(--text-sm)", borderBottom: "1px dashed var(--border-default)" }}
+                          title="Clic para editar"
+                        >
+                          {contact.email || "—"}
+                        </span>
+                      )}
+                    </Table.Td>
+
+                    {/* Teléfono */}
                     <Table.Td>
+                      <span style={{ fontSize: "var(--text-sm)" }}>{contact.phone || "—"}</span>
+                    </Table.Td>
+
+                    {/* Estado — editable select */}
+                    <Table.Td onClick={(e) => e.stopPropagation()}>
                       <select
                         value={contact.status}
                         onChange={async (e) => {
-                          e.stopPropagation();
                           try {
                             await updateContact.mutateAsync({ id: contact.id, data: { status: e.target.value } });
                           } catch {
                             addToast({ type: "error", message: "Error al cambiar estado" });
                           }
                         }}
-                        onClick={(e) => e.stopPropagation()}
                         style={{
                           appearance: "none",
                           WebkitAppearance: "none",
-                          background: `var(--color-${status.variant === 'primary' ? 'primary' : status.variant === 'success' ? 'success' : status.variant === 'warning' ? 'warning' : status.variant === 'danger' ? 'danger' : 'neutral'}-100)`,
-                          color: `var(--color-${status.variant === 'primary' ? 'primary' : status.variant === 'success' ? 'success' : status.variant === 'warning' ? 'warning' : status.variant === 'danger' ? 'danger' : 'neutral'}-700)`,
+                          background: `var(--color-${status.variant === "primary" ? "primary" : status.variant === "success" ? "success" : status.variant === "warning" ? "warning" : status.variant === "danger" ? "danger" : "neutral"}-100)`,
+                          color: `var(--color-${status.variant === "primary" ? "primary" : status.variant === "success" ? "success" : status.variant === "warning" ? "warning" : status.variant === "danger" ? "danger" : "neutral"}-700)`,
                           border: "none",
                           borderRadius: "var(--radius-full)",
                           padding: "4px 12px",
@@ -298,12 +406,83 @@ export default function ContactsPage() {
                         ))}
                       </select>
                     </Table.Td>
-                    <Table.Td>
-                      <span style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)" }}>
-                        {contact.source || "—"}
-                      </span>
+
+                    {/* Notas — editable */}
+                    <Table.Td onClick={(e) => e.stopPropagation()}>
+                      {editingCell?.contactId === contact.id && editingCell?.field === "notes" ? (
+                        <input
+                          autoFocus
+                          value={editingCell.value}
+                          onChange={(e) => setEditingCell((prev) => ({ ...prev, value: e.target.value }))}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") saveInlineEdit();
+                            if (e.key === "Escape") cancelInlineEdit();
+                          }}
+                          onBlur={saveInlineEdit}
+                          style={inlineInputStyle}
+                          placeholder="Añadir nota..."
+                        />
+                      ) : (
+                        <span
+                          onClick={() => startInlineEdit(contact.id, "notes", contact.notes)}
+                          style={{
+                            cursor: "pointer",
+                            fontSize: "var(--text-sm)",
+                            color: contact.notes ? "var(--text-primary)" : "var(--text-tertiary)",
+                            borderBottom: "1px dashed var(--border-default)",
+                            maxWidth: 180,
+                            display: "inline-block",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                          title={contact.notes || "Clic para añadir nota"}
+                        >
+                          {contact.notes || "Añadir nota..."}
+                        </span>
+                      )}
                     </Table.Td>
-                    <Table.Td>{formatDate(contact.created_at)}</Table.Td>
+
+                    {/* Registrar actividad */}
+                    <Table.Td onClick={(e) => e.stopPropagation()}>
+                      {activityForm?.contactId === contact.id ? (
+                        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                          <span style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                            {ACTIVITY_ICONS.find((a) => a.type === activityForm.type)?.label}
+                          </span>
+                          <input
+                            autoFocus
+                            value={activityForm.description}
+                            onChange={(e) => setActivityForm((prev) => ({ ...prev, description: e.target.value }))}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") saveInlineActivity();
+                              if (e.key === "Escape") setActivityForm(null);
+                            }}
+                            placeholder="Nota opcional..."
+                            style={{ ...inlineInputStyle, minWidth: 100 }}
+                          />
+                          <button onClick={saveInlineActivity} style={{ ...miniIconBtnStyle, color: "var(--color-success-600)" }} title="Guardar">
+                            <Check size={14} />
+                          </button>
+                          <button onClick={() => setActivityForm(null)} style={miniIconBtnStyle} title="Cancelar">
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div style={{ display: "flex", gap: 4 }}>
+                          {ACTIVITY_ICONS.map(({ type, Icon, label }) => (
+                            <button
+                              key={type}
+                              title={label}
+                              onClick={() => setActivityForm({ contactId: contact.id, type, description: "" })}
+                              style={miniIconBtnStyle}
+                            >
+                              <Icon size={14} />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </Table.Td>
                   </Table.Row>
                 );
               })}
