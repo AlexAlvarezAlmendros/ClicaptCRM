@@ -8,7 +8,7 @@ import { parsePagination, buildPagination } from "../utils/pagination.js";
  */
 export async function listContacts(orgId, options = {}) {
   const { page, limit, offset } = parsePagination(options);
-  const { search, status, source, tag, sort = "created_at", order = "desc" } = options;
+  const { search, status, source, tag, group_id, sort = "created_at", order = "desc" } = options;
 
   const conditions = ["c.organization_id = ?", "c.is_deleted = 0"];
   const args = [orgId];
@@ -32,6 +32,11 @@ export async function listContacts(orgId, options = {}) {
   if (tag) {
     conditions.push("EXISTS (SELECT 1 FROM contact_tags ct JOIN tags t ON ct.tag_id = t.id WHERE ct.contact_id = c.id AND t.name = ?)");
     args.push(tag);
+  }
+
+  if (group_id) {
+    conditions.push("c.group_id = ?");
+    args.push(group_id);
   }
 
   const whereClause = conditions.join(" AND ");
@@ -81,14 +86,14 @@ export async function createContact(orgId, userId, data) {
   const id = crypto.randomUUID().replace(/-/g, "");
 
   await db.execute({
-    sql: `INSERT INTO contacts (id, organization_id, name, surname, company, job_title, email, phone, address, city, postal_code, country, source, notes, assigned_to, created_by)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    sql: `INSERT INTO contacts (id, organization_id, name, surname, company, job_title, email, phone, address, city, postal_code, country, source, notes, group_id, assigned_to, created_by)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       id, orgId, data.name, data.surname || null, data.company || null,
       data.job_title || null, data.email || null, data.phone || null,
       data.address || null, data.city || null, data.postal_code || null,
       data.country || "España", data.source || "other", data.notes || null,
-      data.assigned_to || null, userId,
+      data.group_id || null, data.assigned_to || null, userId,
     ],
   });
 
@@ -131,7 +136,7 @@ export async function updateContact(orgId, contactId, data) {
 
   const updatableFields = [
     "name", "surname", "company", "job_title", "email", "phone",
-    "address", "city", "postal_code", "country", "source", "status", "notes", "assigned_to",
+    "address", "city", "postal_code", "country", "source", "status", "notes", "group_id", "assigned_to",
   ];
 
   for (const field of updatableFields) {

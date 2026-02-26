@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS contacts (
     source            TEXT DEFAULT 'other' CHECK (source IN ('web', 'referral', 'cold_call', 'event', 'linkedin', 'import', 'other')),
     status            TEXT DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'qualified', 'customer', 'lost')),
     notes             TEXT,
+    group_id          TEXT REFERENCES contact_groups(id) ON DELETE SET NULL,
     assigned_to       TEXT REFERENCES users(id),
     created_by        TEXT NOT NULL REFERENCES users(id),
 
@@ -88,6 +89,23 @@ CREATE INDEX IF NOT EXISTS idx_contacts_org ON contacts(organization_id);
 CREATE INDEX IF NOT EXISTS idx_contacts_status ON contacts(organization_id, status);
 CREATE INDEX IF NOT EXISTS idx_contacts_deleted ON contacts(organization_id, is_deleted);
 CREATE INDEX IF NOT EXISTS idx_contacts_search ON contacts(organization_id, name, surname, company);
+
+-- ─────────────────────────────────────────────
+-- GRUPOS DE CONTACTOS
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS contact_groups (
+    id                TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    organization_id   TEXT NOT NULL REFERENCES organizations(id),
+    name              TEXT NOT NULL,
+    color             TEXT DEFAULT '#6B7280',
+    description       TEXT,
+
+    created_at        DATETIME DEFAULT (datetime('now')),
+
+    UNIQUE(name, organization_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_contact_groups_org ON contact_groups(organization_id);
 
 -- ─────────────────────────────────────────────
 -- TAGS Y RELACIÓN CON CONTACTOS

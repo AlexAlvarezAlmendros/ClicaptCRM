@@ -6,6 +6,7 @@ import { Drawer } from "../ui/Drawer";
 import { TagBadge } from "./TagBadge";
 import { CONTACT_SOURCES, CONTACT_STATUSES } from "../../lib/constants";
 import { useCreateContact, useUpdateContact } from "../../hooks/useContacts";
+import { useGroups } from "../../hooks/useGroups";
 import { useToast } from "../ui/Toast";
 import { Plus } from "lucide-react";
 
@@ -23,6 +24,7 @@ const EMPTY_FORM = {
   source: "",
   notes: "",
   status: "new",
+  group_id: "",
   tags: [],
 };
 
@@ -35,6 +37,9 @@ export function ContactForm({ isOpen, onClose, contact = null }) {
 
   const createContact = useCreateContact();
   const updateContact = useUpdateContact();
+  const { data: groupsData } = useGroups();
+  const groups = groupsData?.data || [];
+  const groupOptions = groups.map((g) => ({ value: String(g.id), label: g.name }));
   const { addToast } = useToast();
 
   const isLoading = createContact.isPending || updateContact.isPending;
@@ -56,6 +61,7 @@ export function ContactForm({ isOpen, onClose, contact = null }) {
           source: contact.source || "",
           notes: contact.notes || "",
           status: contact.status || "new",
+          group_id: contact.group_id ? String(contact.group_id) : "",
           tags: contact.tags?.map((t) => (typeof t === "string" ? t : t.name)) || [],
         });
       } else {
@@ -113,6 +119,8 @@ export function ContactForm({ isOpen, onClose, contact = null }) {
     Object.keys(payload).forEach((k) => {
       if (payload[k] === "") payload[k] = undefined;
     });
+    // Convert group_id to number or null
+    payload.group_id = payload.group_id ? Number(payload.group_id) : null;
 
     try {
       if (isEdit) {
@@ -243,6 +251,18 @@ export function ContactForm({ isOpen, onClose, contact = null }) {
               options={CONTACT_STATUSES}
             />
           )}
+        </div>
+
+        {/* Group */}
+        <div style={{ maxWidth: "50%" }}>
+          <Select
+            label="Grupo"
+            name="group_id"
+            value={form.group_id}
+            onChange={handleChange}
+            options={groupOptions}
+            placeholder="Sin grupo"
+          />
         </div>
 
         {/* Tags */}

@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { User, Building2, Kanban, Users, CreditCard } from "lucide-react";
+import { User, Building2, Kanban, Users, CreditCard, FolderOpen } from "lucide-react";
 import { ProfileSettings } from "../components/settings/ProfileSettings";
 import { OrganizationSettings } from "../components/settings/OrganizationSettings";
 import { TeamSettings } from "../components/settings/TeamSettings";
 import { PipelineSettings } from "../components/settings/PipelineSettings";
 import { SubscriptionSettings } from "../components/settings/SubscriptionSettings";
+import { GroupSettings } from "../components/settings/GroupSettings";
 
 const TABS = [
   { key: "profile", label: "Perfil", icon: User },
   { key: "organization", label: "Organización", icon: Building2 },
+  { key: "groups", label: "Grupos", icon: FolderOpen },
   { key: "pipeline", label: "Pipeline", icon: Kanban },
   { key: "team", label: "Equipo", icon: Users },
   { key: "subscription", label: "Suscripción", icon: CreditCard },
@@ -17,6 +19,7 @@ const TABS = [
 const PANELS = {
   profile: ProfileSettings,
   organization: OrganizationSettings,
+  groups: GroupSettings,
   pipeline: PipelineSettings,
   team: TeamSettings,
   subscription: SubscriptionSettings,

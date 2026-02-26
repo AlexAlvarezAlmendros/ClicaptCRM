@@ -50,6 +50,7 @@ export default function ContactsPage() {
     search: debouncedSearch,
     status: filters.status || undefined,
     source: filters.source || undefined,
+    group_id: filters.group_id || undefined,
     page: filters.page,
     limit: filters.limit,
   };
@@ -171,12 +172,12 @@ export default function ContactsPage() {
           icon={Users}
           title="Sin contactos"
           description={
-            debouncedSearch || filters.status || filters.source
+            debouncedSearch || filters.status || filters.source || filters.group_id
               ? "No se encontraron contactos con estos filtros."
               : "Crea tu primer contacto para empezar a gestionar tus leads."
           }
           action={
-            debouncedSearch || filters.status || filters.source ? (
+            debouncedSearch || filters.status || filters.source || filters.group_id ? (
               <Button variant="secondary" onClick={handleReset}>Limpiar filtros</Button>
             ) : (
               <Button leftIcon={Plus} onClick={() => setFormOpen(true)}>Crear contacto</Button>

@@ -6,6 +6,7 @@ export const useFiltersStore = create((set) => ({
     search: "",
     status: "",
     source: "",
+    group_id: "",
     tag: "",
     page: 1,
     limit: 25,
@@ -16,7 +17,7 @@ export const useFiltersStore = create((set) => ({
     })),
   resetContactFilters: () =>
     set({
-      contacts: { search: "", status: "", source: "", tag: "", page: 1, limit: 25 },
+      contacts: { search: "", status: "", source: "", group_id: "", tag: "", page: 1, limit: 25 },
     }),
 
   // Deal filters
