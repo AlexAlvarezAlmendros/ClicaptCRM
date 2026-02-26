@@ -36,7 +36,7 @@ export const Button = forwardRef(function Button(
       ) : (
         <>
           {LeftIcon && <LeftIcon size={size === "sm" ? 14 : 18} />}
-          {!iconOnly && children}
+          {children}
           {RightIcon && <RightIcon size={size === "sm" ? 14 : 18} />}
         </>
       )}
