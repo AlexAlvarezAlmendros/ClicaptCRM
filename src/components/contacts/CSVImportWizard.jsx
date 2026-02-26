@@ -918,12 +918,20 @@ function ImportingStep({ isImporting, result, onClose, onRetry }) {
           </div>
           <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>Importados</div>
         </div>
-        {(result?.skipped || 0) > 0 && (
+        {(result?.duplicates || 0) > 0 && (
           <div>
             <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--font-weight-bold)", color: "var(--color-warning-500)" }}>
-              {result.skipped}
+              {result.duplicates}
             </div>
-            <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>Omitidos</div>
+            <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>Duplicados</div>
+          </div>
+        )}
+        {(result?.invalid || 0) > 0 && (
+          <div>
+            <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--font-weight-bold)", color: "var(--color-danger-500)" }}>
+              {result.invalid}
+            </div>
+            <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>Sin datos</div>
           </div>
         )}
         <div>

@@ -49,13 +49,14 @@ export default async function handler(req, res) {
     });
 
     let imported = 0;
-    let skipped = 0;
+    let duplicates = 0;
+    let invalid = 0;
     const errors = [];
 
     for (const row of sanitizedRows) {
       // Require at minimum name or email
       if (!row.name && !row.email) {
-        skipped++;
+        invalid++;
         continue;
       }
 
@@ -87,18 +88,20 @@ export default async function handler(req, res) {
         if (result.rowsAffected > 0) {
           imported++;
         } else {
-          skipped++;
+          duplicates++;
           errors.push({ row: row.name || row.email, error: "Contacto duplicado (email ya existe)" });
         }
       } catch (err) {
-        skipped++;
+        invalid++;
         errors.push({ row: row.name || row.email, error: err.message });
       }
     }
 
     return sendSuccess(res, 200, {
       imported,
-      skipped,
+      duplicates,
+      invalid,
+      skipped: duplicates + invalid,
       total: sanitizedRows.length,
       errors: errors.length > 0 ? errors.slice(0, 10) : undefined,
     });
