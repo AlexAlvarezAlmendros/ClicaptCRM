@@ -139,6 +139,50 @@
   border-top: 1px solid var(--border-default);
 }
 
+/* ─── SIDEBAR TOGGLE BUTTON ─── */
+.sidebar__toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  padding: 0;
+}
+
+.sidebar__toggle-btn:hover {
+  background: var(--surface-tertiary, var(--surface-secondary));
+  color: var(--text-primary);
+}
+
+/* ─── SIDEBAR COLLAPSED (desktop) ─── */
+.app-layout--collapsed .app-layout__sidebar {
+  width: var(--sidebar-width-collapsed);
+}
+
+.app-layout--collapsed .app-layout__main {
+  margin-left: var(--sidebar-width-collapsed);
+}
+
+.app-layout--collapsed .sidebar__logo {
+  justify-content: center;
+  padding: var(--space-5) var(--space-3);
+}
+
+.app-layout--collapsed .sidebar__link {
+  justify-content: center;
+  padding: var(--space-3);
+}
+
+.app-layout--collapsed .sidebar__footer {
+  padding: var(--space-3);
+}
+
 
 /* ─── RESPONSIVE: TABLET ─── */
 @media (max-width: 1024px) {

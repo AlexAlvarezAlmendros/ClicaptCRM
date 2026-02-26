@@ -5,14 +5,17 @@ import { BottomNav } from "./BottomNav";
 import { TrialBanner } from "../onboarding/TrialBanner";
 import { WelcomeTour } from "../onboarding/WelcomeTour";
 import { SubscriptionGateProvider } from "../onboarding/SubscriptionGate";
+import { useUiStore } from "../../stores/uiStore";
 import "../../components/onboarding/TrialBanner.css";
 import "../../components/onboarding/WelcomeTour.css";
 import "../../components/onboarding/UpgradeWall.css";
 
 export function AppLayout() {
+  const sidebarOpen = useUiStore((s) => s.sidebarOpen);
+
   return (
     <SubscriptionGateProvider>
-      <div className="app-layout">
+      <div className={`app-layout${!sidebarOpen ? " app-layout--collapsed" : ""}`}>
         {/* Skip to content — Accessibility */}
         <a href="#main-content" className="skip-to-content">Ir al contenido principal</a>
 
