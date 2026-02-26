@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { useContacts } from "../hooks/useContacts";
 import { useFiltersStore } from "../stores/filtersStore";
 import { useIsMobile } from "../hooks/useMediaQuery";
@@ -7,19 +7,18 @@ import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Table } from "../components/ui/Table";
 import { Badge } from "../components/ui/Badge";
-import { Spinner } from "../components/ui/Spinner";
 import { EmptyState } from "../components/ui/EmptyState";
 import { ContactForm } from "../components/contacts/ContactForm";
 import { ContactFilters } from "../components/contacts/ContactFilters";
 import { ContactCard } from "../components/contacts/ContactCard";
+import { CSVImportWizard } from "../components/contacts/CSVImportWizard";
 import { Plus, Search, Users, ChevronLeft, ChevronRight, Filter, Download, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToken } from "../hooks/useToken";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "../lib/formatters";
 import { useSubscriptionGate } from "../components/onboarding/SubscriptionGate";
 import { SkeletonTable } from "../components/ui/Skeleton";
-import { apiClient } from "../lib/api";
 
 const STATUS_BADGES = {
   new: { label: "Nuevo", variant: "primary" },
@@ -38,14 +37,13 @@ export default function ContactsPage() {
   const debouncedSearch = useDebounce(searchInput, 300);
   const [showFilters, setShowFilters] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
 
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { canWrite } = useSubscriptionGate();
   const getToken = useToken();
   const queryClient = useQueryClient();
-  const fileInputRef = useRef(null);
-  const [importing, setImporting] = useState(false);
 
   // Build query params from store + debounced search
   const queryParams = {
@@ -97,24 +95,7 @@ export default function ContactsPage() {
     }
   }
 
-  // CSV Import
-  async function handleImportFile(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImporting(true);
-    try {
-      const text = await file.text();
-      const token = await getToken();
-      const result = await apiClient.post("/api/contacts/import", { csv: text }, token);
-      queryClient.invalidateQueries({ queryKey: ["contacts"] });
-      alert(`Importados: ${result.data?.imported || 0} — Omitidos: ${result.data?.skipped || 0}`);
-    } catch (err) {
-      alert("Error al importar: " + (err.message || "Error desconocido"));
-    } finally {
-      setImporting(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  }
+
 
   return (
     <div>
@@ -134,10 +115,9 @@ export default function ContactsPage() {
           <Button variant="outline" size="sm" leftIcon={Download} onClick={handleExport}>
             Exportar
           </Button>
-          <Button variant="outline" size="sm" leftIcon={Upload} onClick={() => fileInputRef.current?.click()} disabled={!canWrite || importing}>
-            {importing ? "Importando…" : "Importar"}
+          <Button variant="outline" size="sm" leftIcon={Upload} onClick={() => setImportOpen(true)} disabled={!canWrite}>
+            Importar
           </Button>
-          <input ref={fileInputRef} type="file" accept=".csv" style={{ display: "none" }} onChange={handleImportFile} />
           <Button leftIcon={Plus} onClick={() => setFormOpen(true)} disabled={!canWrite} title={!canWrite ? "Suscripción requerida" : undefined}>
             Nuevo contacto
           </Button>
@@ -304,6 +284,12 @@ export default function ContactsPage() {
       <ContactForm
         isOpen={formOpen}
         onClose={() => setFormOpen(false)}
+      />
+
+      {/* CSV Import Wizard */}
+      <CSVImportWizard
+        isOpen={importOpen}
+        onClose={() => setImportOpen(false)}
       />
     </div>
   );
