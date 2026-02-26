@@ -78,11 +78,12 @@ export default function ContactsPage() {
 
   const { data, isLoading } = useContacts(queryParams);
 
-  const contacts = data?.data || [];
-  const totalCount = parseInt(data?.data?.length || 0, 10);
-  // If the API returns X-Total-Count via header, we use the array length
-  const hasMore = contacts.length === filters.limit;
+  const contacts = data?.data?.contacts || data?.data || [];
+  const pagination = data?.data?.pagination || null;
+  const totalCount = pagination?.total || contacts.length;
+  const totalPages = pagination?.totalPages || 1;
   const page = filters.page;
+  const hasMore = pagination ? page < totalPages : contacts.length === filters.limit;
 
   const handleSearch = useCallback((e) => {
     setSearchInput(e.target.value);
@@ -303,7 +304,7 @@ export default function ContactsPage() {
             className="text-body-sm"
             style={{ color: "var(--text-secondary)", minWidth: 80, textAlign: "center" }}
           >
-            Página {page}
+            Página {page}{totalPages > 1 ? ` de ${totalPages}` : ""}
           </span>
           <Button
             variant="ghost"

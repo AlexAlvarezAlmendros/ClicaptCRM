@@ -20,7 +20,7 @@ export default async function handler(req, res) {
       case "GET": {
         const result = await listContacts(tenant.orgId, req.query);
         res.setHeader("X-Total-Count", result.pagination.total);
-        return sendSuccess(res, 200, result.data);
+        return sendSuccess(res, 200, { contacts: result.data, pagination: result.pagination });
       }
 
       case "POST": {
