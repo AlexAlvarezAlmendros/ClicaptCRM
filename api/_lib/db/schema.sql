@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS contacts (
     job_title         TEXT,
     email             TEXT,
     phone             TEXT,
+    website           TEXT,
     address           TEXT,
     city              TEXT,
     postal_code       TEXT,

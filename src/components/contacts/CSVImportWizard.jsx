@@ -22,19 +22,20 @@ import {
 // CRM fields the user can map CSV columns to
 const CRM_FIELDS = [
   { value: "", label: "— No importar —" },
-  { value: "first_name", label: "Nombre", required: true },
-  { value: "last_name", label: "Apellido" },
+  { value: "name", label: "Nombre", required: true },
+  { value: "surname", label: "Apellido" },
   { value: "email", label: "Email" },
   { value: "phone", label: "Teléfono" },
   { value: "company", label: "Empresa" },
-  { value: "position", label: "Cargo" },
+  { value: "job_title", label: "Cargo" },
+  { value: "website", label: "Página web" },
   { value: "status", label: "Estado" },
   { value: "source", label: "Origen" },
   { value: "notes", label: "Notas" },
 ];
 
 const VALID_STATUSES = ["new", "contacted", "qualified", "customer", "lost"];
-const VALID_SOURCES = ["web", "referral", "social", "ads", "cold", "event", "other"];
+const VALID_SOURCES = ["web", "referral", "cold_call", "event", "linkedin", "other"];
 
 // Step names
 const STEPS = ["upload", "mapping", "preview", "importing"];
@@ -99,23 +100,27 @@ function parseCSV(text) {
  */
 function autoDetectMapping(headers) {
   const HEADER_MAP = {
-    nombre: "first_name",
-    "first name": "first_name",
-    first_name: "first_name",
-    name: "first_name",
-    apellido: "last_name",
-    "last name": "last_name",
-    last_name: "last_name",
-    surname: "last_name",
+    nombre: "name",
+    "first name": "name",
+    first_name: "name",
+    name: "name",
+    apellido: "surname",
+    "last name": "surname",
+    last_name: "surname",
+    surname: "surname",
+    apellidos: "surname",
     email: "email",
     "e-mail": "email",
     "correo electrónico": "email",
     "correo electronico": "email",
+    correo: "email",
     mail: "email",
     teléfono: "phone",
     telefono: "phone",
     phone: "phone",
     tel: "phone",
+    "teléfonos": "phone",
+    telefonos: "phone",
     móvil: "phone",
     movil: "phone",
     mobile: "phone",
@@ -124,11 +129,20 @@ function autoDetectMapping(headers) {
     organización: "company",
     organizacion: "company",
     organization: "company",
-    cargo: "position",
-    position: "position",
-    puesto: "position",
-    "job title": "position",
-    title: "position",
+    cargo: "job_title",
+    position: "job_title",
+    puesto: "job_title",
+    "job title": "job_title",
+    job_title: "job_title",
+    title: "job_title",
+    "título": "job_title",
+    titulo: "job_title",
+    web: "website",
+    website: "website",
+    "página web": "website",
+    "pagina web": "website",
+    url: "website",
+    "sitio web": "website",
     estado: "status",
     status: "status",
     origen: "source",
@@ -254,13 +268,13 @@ export function CSVImportWizard({ isOpen, onClose }) {
     });
   }, []);
 
-  // Validation: Check if at least first_name or email is mapped
+  // Validation: Check if at least name or email is mapped
   const mappingValid = useMemo(() => {
     const mappedFields = Object.values(mapping);
-    return mappedFields.includes("first_name") || mappedFields.includes("email");
+    return mappedFields.includes("name") || mappedFields.includes("email");
   }, [mapping]);
 
-  // Generate preview data
+  // Generate preview data (with / splitting for phone and email)
   const previewData = useMemo(() => {
     if (step !== "preview") return [];
 
@@ -269,7 +283,12 @@ export function CSVImportWizard({ isOpen, onClose }) {
     return csvData.rows.slice(0, 50).map((row) => {
       const obj = {};
       for (const [colIdx, field] of mappedCols) {
-        obj[field] = row[Number(colIdx)] || "";
+        let value = row[Number(colIdx)] || "";
+        // Take only the first value when separated by /
+        if ((field === "phone" || field === "email") && value.includes("/")) {
+          value = value.split("/")[0].trim();
+        }
+        obj[field] = value;
       }
       return obj;
     });
@@ -293,12 +312,17 @@ export function CSVImportWizard({ isOpen, onClose }) {
     try {
       const token = await getToken();
 
-      // Build mapped rows on the client
+      // Build mapped rows on the client (split / for phone and email)
       const mappedCols = Object.entries(mapping).filter(([, field]) => field);
       const rows = csvData.rows.map((row) => {
         const obj = {};
         for (const [colIdx, field] of mappedCols) {
-          obj[field] = row[Number(colIdx)] || "";
+          let value = row[Number(colIdx)] || "";
+          // Take only the first value when separated by /
+          if ((field === "phone" || field === "email") && value.includes("/")) {
+            value = value.split("/")[0].trim();
+          }
+          obj[field] = value;
         }
         return obj;
       });
@@ -712,7 +736,7 @@ function PreviewStep({ data, fields, totalRows, onBack, onImport }) {
             </thead>
             <tbody>
               {data.map((row, i) => {
-                const hasRequired = row.first_name || row.email;
+                const hasRequired = row.name || row.email;
                 return (
                   <tr
                     key={i}
@@ -762,7 +786,7 @@ function PreviewStep({ data, fields, totalRows, onBack, onImport }) {
         }}
       >
         <Info size={16} />
-        Los contactos sin nombre ni email serán omitidos durante la importación.
+        Los contactos sin nombre ni email serán omitidos. Si el teléfono o email contienen varios valores separados por «/», se usará el primero.
       </div>
 
       {/* Actions */}

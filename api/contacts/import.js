@@ -8,12 +8,12 @@ import db from "../_lib/db/client.js";
 
 // Allowed DB fields that the frontend can map to
 const ALLOWED_FIELDS = new Set([
-  "first_name", "last_name", "email", "phone",
-  "company", "position", "status", "source", "notes",
+  "name", "surname", "email", "phone",
+  "company", "job_title", "website", "status", "source", "notes",
 ]);
 
 const VALID_STATUSES = ["new", "contacted", "qualified", "customer", "lost"];
-const VALID_SOURCES = ["web", "referral", "social", "ads", "cold", "event", "other"];
+const VALID_SOURCES = ["web", "referral", "cold_call", "event", "linkedin", "other"];
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -32,12 +32,17 @@ export default async function handler(req, res) {
       return sendError(res, 400, "INVALID_INPUT", "Se requiere un array 'rows' con los contactos mapeados");
     }
 
-    // Sanitize: only keep allowed fields
+    // Sanitize: only keep allowed fields, split / for phone and email
     const sanitizedRows = rows.map((row) => {
       const clean = {};
       for (const [key, value] of Object.entries(row)) {
         if (ALLOWED_FIELDS.has(key) && typeof value === "string" && value.trim()) {
-          clean[key] = value.trim();
+          let val = value.trim();
+          // Take only the first value when separated by /
+          if ((key === "phone" || key === "email") && val.includes("/")) {
+            val = val.split("/")[0].trim();
+          }
+          clean[key] = val;
         }
       }
       return clean;
@@ -48,8 +53,8 @@ export default async function handler(req, res) {
     const errors = [];
 
     for (const row of sanitizedRows) {
-      // Require at minimum first_name or email
-      if (!row.first_name && !row.email) {
+      // Require at minimum name or email
+      if (!row.name && !row.email) {
         skipped++;
         continue;
       }
@@ -59,19 +64,20 @@ export default async function handler(req, res) {
         const source = VALID_SOURCES.includes(row.source) ? row.source : "other";
 
         await db.execute({
-          sql: `INSERT INTO contacts (id, organization_id, first_name, last_name, email, phone,
-                company, position, status, source, notes, created_by, created_at, updated_at)
-                VALUES (lower(hex(randomblob(16))), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+          sql: `INSERT INTO contacts (id, organization_id, name, surname, email, phone,
+                company, job_title, website, source, status, notes, created_by, created_at, updated_at)
+                VALUES (lower(hex(randomblob(16))), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
           args: [
             tenant.orgId,
-            row.first_name || "",
-            row.last_name || "",
+            row.name || "",
+            row.surname || null,
             row.email || null,
             row.phone || null,
             row.company || null,
-            row.position || null,
-            status,
+            row.job_title || null,
+            row.website || null,
             source,
+            status,
             row.notes || null,
             tenant.userId,
           ],
@@ -79,7 +85,7 @@ export default async function handler(req, res) {
         imported++;
       } catch (err) {
         skipped++;
-        errors.push({ row: row.first_name || row.email, error: err.message });
+        errors.push({ row: row.name || row.email, error: err.message });
       }
     }
 
