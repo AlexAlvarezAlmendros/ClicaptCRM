@@ -330,12 +330,12 @@ export default function ContactsPage() {
                   >
                     {/* Empresa + nombre */}
                     <Table.Td>
-                      <div style={{ lineHeight: 1.3 }}>
-                        <span style={{ fontWeight: "var(--font-weight-medium)" }}>
+                      <div style={{ lineHeight: 1.3, maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <span style={{ fontWeight: "var(--font-weight-medium)" }} title={contact.company || ""}>
                           {contact.company || "—"}
                         </span>
                         <br />
-                        <span style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)" }}>
+                        <span style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)" }} title={`${contact.name} ${contact.surname || ""}`}>
                           {contact.name} {contact.surname || ""}
                         </span>
                       </div>
@@ -359,8 +359,8 @@ export default function ContactsPage() {
                       ) : (
                         <span
                           onClick={() => startInlineEdit(contact.id, "email", contact.email)}
-                          style={{ cursor: "pointer", fontSize: "var(--text-sm)", borderBottom: "1px dashed var(--border-default)" }}
-                          title="Clic para editar"
+                          style={{ cursor: "pointer", fontSize: "var(--text-sm)", borderBottom: "1px dashed var(--border-default)", maxWidth: 100, display: "inline-block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                          title={contact.email || "Clic para editar"}
                         >
                           {contact.email || "—"}
                         </span>
