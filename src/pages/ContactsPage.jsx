@@ -9,6 +9,7 @@ import { Input } from "../components/ui/Input";
 import { Table } from "../components/ui/Table";
 import { EmptyState } from "../components/ui/EmptyState";
 import { ContactForm } from "../components/contacts/ContactForm";
+import { ContactColumnsSelector } from "../components/contacts/ContactColumnsSelector";
 import { ContactFilters } from "../components/contacts/ContactFilters";
 import { ContactCard } from "../components/contacts/ContactCard";
 import { CSVImportWizard } from "../components/contacts/CSVImportWizard";
@@ -45,6 +46,9 @@ const STATUS_BADGES = {
 };
 
 export default function ContactsPage() {
+  const [exportColumns, setExportColumns] = useState([
+    "first_name", "last_name", "email", "phone", "company", "position", "status", "source", "notes", "created_at"
+  ]);
   const filters = useFiltersStore((s) => s.contacts);
   const setFilters = useFiltersStore((s) => s.setContactFilters);
   const resetFilters = useFiltersStore((s) => s.resetContactFilters);
@@ -106,7 +110,14 @@ export default function ContactsPage() {
   async function handleExport() {
     try {
       const token = await getToken();
-      const response = await fetch("/api/contacts/export", {
+      // Build query string for filters and columns
+      const params = new URLSearchParams();
+      if (debouncedSearch) params.append("search", debouncedSearch);
+      if (filters.status) params.append("status", filters.status);
+      if (filters.source) params.append("source", filters.source);
+      if (filters.group_id) params.append("group_id", filters.group_id);
+      if (exportColumns && exportColumns.length) params.append("columns", exportColumns.join(","));
+      const response = await fetch(`/api/contacts/export?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const blob = await response.blob();
@@ -221,6 +232,7 @@ export default function ContactsPage() {
       >
         <h1 className="text-h1">Contactos</h1>
         <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+          <ContactColumnsSelector selected={exportColumns} onChange={setExportColumns} />
           <Button variant="outline" size="sm" leftIcon={Download} onClick={handleExport}>
             Exportar
           </Button>
