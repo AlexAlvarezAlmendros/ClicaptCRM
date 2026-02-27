@@ -4,7 +4,6 @@
 import { verifyAuth } from "../_lib/middleware/auth.js";
 import { resolveTenant } from "../_lib/middleware/tenant.js";
 import db from "../_lib/db/client.js";
-import { listContacts } from "../_lib/services/contactService.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -16,27 +15,23 @@ export default async function handler(req, res) {
     const authUser = await verifyAuth(req);
     const tenant = await resolveTenant(authUser);
 
-    // Parse filters and columns from query
-    const { search, status, source, tag, group_id } = req.query;
-    let columns = req.query.columns;
-    if (columns && typeof columns === "string") {
-      columns = columns.split(",").map((c) => c.trim()).filter(Boolean);
-    }
-    // Default columns if not specified
-    const defaultFields = ["first_name", "last_name", "email", "phone", "company", "position", "status", "source", "notes", "created_at"];
-    const defaultHeaders = ["Nombre", "Apellido", "Email", "Teléfono", "Empresa", "Cargo", "Estado", "Origen", "Notas", "Fecha creación"];
-    const fields = columns && columns.length ? columns : defaultFields;
-    const headers = fields.map((f) => {
-      const idx = defaultFields.indexOf(f);
-      return idx !== -1 ? defaultHeaders[idx] : f;
+    const result = await db.execute({
+      sql: `SELECT c.first_name, c.last_name, c.email, c.phone, c.company,
+                   c.position, c.status, c.source, c.notes, c.created_at
+            FROM contacts c
+            WHERE c.organization_id = ?
+            ORDER BY c.created_at DESC`,
+      args: [tenant.orgId],
     });
 
-    // Get filtered contacts
-    const result = await listContacts(tenant.orgId, { search, status, source, tag, group_id, limit: 10000, page: 1 });
+    const headers = ["Nombre", "Apellido", "Email", "Teléfono", "Empresa", "Cargo", "Estado", "Origen", "Notas", "Fecha creación"];
+    const fields = ["first_name", "last_name", "email", "phone", "company", "position", "status", "source", "notes", "created_at"];
+
     const csvRows = [headers.join(",")];
-    for (const row of result.data) {
+    for (const row of result.rows) {
       const values = fields.map((f) => {
         const val = row[f] ?? "";
+        // Escape CSV: wrap in quotes if contains comma, quote, or newline
         const str = String(val);
         if (str.includes(",") || str.includes('"') || str.includes("\n")) {
           return `"${str.replace(/"/g, '""')}"`;
@@ -45,6 +40,7 @@ export default async function handler(req, res) {
       });
       csvRows.push(values.join(","));
     }
+
     const csv = csvRows.join("\n");
 
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
