@@ -40,7 +40,7 @@ export function DealDetail({ deal, isOpen, onClose, onEdit, onDelete }) {
   if (!deal) return null;
 
   const activities = activitiesData?.data || [];
-  const tasks = tasksData?.data?.items || tasksData?.data || [];
+  const tasks = tasksData?.data || [];
 
   async function handleAddActivity(e) {
     e.preventDefault();

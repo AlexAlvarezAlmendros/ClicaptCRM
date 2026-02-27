@@ -46,7 +46,7 @@ export function DealForm({ isOpen, onClose, deal = null, defaultStageId = "" }) 
     }
   }, [isOpen, deal, defaultStageId]);
 
-  const contacts = (contactsData?.data?.items || contactsData?.data || []).map((c) => ({
+  const contacts = (contactsData?.data?.contacts || contactsData?.data || []).map((c) => ({
     value: c.id,
     label: `${c.name}${c.surname ? ` ${c.surname}` : ""}${c.company ? ` — ${c.company}` : ""}`,
   }));

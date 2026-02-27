@@ -46,7 +46,8 @@ class ApiClient {
       );
     }
 
-    return data;
+    // Unwrap the { data: ... } envelope from sendSuccess
+    return data.data !== undefined ? data.data : data;
   }
 
   get(path, token) {
