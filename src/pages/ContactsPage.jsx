@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { useContacts, useUpdateContact } from "../hooks/useContacts";
 import { useCreateActivity } from "../hooks/useActivities";
 import { useFiltersStore } from "../stores/filtersStore";
@@ -12,7 +12,7 @@ import { ContactForm } from "../components/contacts/ContactForm";
 import { ContactFilters } from "../components/contacts/ContactFilters";
 import { ContactCard } from "../components/contacts/ContactCard";
 import { CSVImportWizard } from "../components/contacts/CSVImportWizard";
-import { Plus, Search, Users, ChevronLeft, ChevronRight, Filter, Download, Upload, FolderPlus, Phone, Mail, Calendar, FileText, Check, X } from "lucide-react";
+import { Plus, Search, Users, ChevronLeft, ChevronRight, Filter, Download, Upload, FolderPlus, Phone, Mail, Calendar, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToken } from "../hooks/useToken";
 import { useQueryClient } from "@tanstack/react-query";
@@ -34,6 +34,13 @@ const GROUP_COLORS = [
   { value: "#F97316", label: "Naranja" },
   { value: "#6B7280", label: "Gris" },
   { value: "#14B8A6", label: "Teal" },
+];
+
+const ACTIVITY_ICONS = [
+  { type: "call",    Icon: Phone,    label: "Llamada" },
+  { type: "email",   Icon: Mail,     label: "Email" },
+  { type: "meeting", Icon: Calendar, label: "Reunión" },
+  { type: "note",    Icon: FileText, label: "Nota" },
 ];
 
 const STATUS_BADGES = {
@@ -158,13 +165,6 @@ export default function ContactsPage() {
     }
     setActivityForm(null);
   }
-
-  const ACTIVITY_ICONS = [
-    { type: "call", Icon: Phone, label: "Llamada" },
-    { type: "email", Icon: Mail, label: "Email" },
-    { type: "meeting", Icon: Calendar, label: "Reunión" },
-    { type: "note", Icon: FileText, label: "Nota" },
-  ];
 
   const inlineInputStyle = {
     width: "100%",
@@ -443,43 +443,35 @@ export default function ContactsPage() {
 
                     {/* Registrar actividad */}
                     <Table.Td onClick={(e) => e.stopPropagation()}>
-                      {activityForm?.contactId === contact.id ? (
-                        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-                          <span style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
-                            {ACTIVITY_ICONS.find((a) => a.type === activityForm.type)?.label}
-                          </span>
-                          <input
-                            autoFocus
-                            value={activityForm.description}
-                            onChange={(e) => setActivityForm((prev) => ({ ...prev, description: e.target.value }))}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") saveInlineActivity();
-                              if (e.key === "Escape") setActivityForm(null);
-                            }}
-                            placeholder="Nota opcional..."
-                            style={{ ...inlineInputStyle, minWidth: 100 }}
-                          />
-                          <button onClick={saveInlineActivity} style={{ ...miniIconBtnStyle, color: "var(--color-success-600)" }} title="Guardar">
-                            <Check size={14} />
-                          </button>
-                          <button onClick={() => setActivityForm(null)} style={miniIconBtnStyle} title="Cancelar">
-                            <X size={14} />
-                          </button>
-                        </div>
-                      ) : (
-                        <div style={{ display: "flex", gap: 4 }}>
-                          {ACTIVITY_ICONS.map(({ type, Icon, label }) => (
+                      <div style={{ display: "flex", gap: 4 }}>
+                        {ACTIVITY_ICONS.map(({ type, Icon, label }) => {
+                          const isActive = activityForm?.contactId === contact.id && activityForm?.type === type;
+                          return (
                             <button
                               key={type}
                               title={label}
-                              onClick={() => setActivityForm({ contactId: contact.id, type, description: "" })}
-                              style={miniIconBtnStyle}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setActivityForm((prev) =>
+                                  prev?.contactId === contact.id && prev?.type === type
+                                    ? null
+                                    : { contactId: contact.id, type, description: "", rect }
+                                );
+                              }}
+                              style={{
+                                ...miniIconBtnStyle,
+                                background: isActive ? "var(--color-primary-100)" : "var(--bg-secondary)",
+                                color: isActive ? "var(--color-primary-600)" : "var(--text-secondary)",
+                                borderColor: isActive ? "var(--color-primary-300)" : "var(--border-default)",
+                                transition: "background 0.15s, color 0.15s, border-color 0.15s",
+                              }}
                             >
                               <Icon size={14} />
                             </button>
-                          ))}
-                        </div>
-                      )}
+                          );
+                        })}
+                      </div>
                     </Table.Td>
                   </Table.Row>
                 );
@@ -602,6 +594,197 @@ export default function ContactsPage() {
           </div>
         </form>
       </Drawer>
+      {/* Activity Popover */}
+      <ActivityPopover
+        form={activityForm}
+        onTypeChange={(type) => setActivityForm((prev) => ({ ...prev, type }))}
+        onChange={(description) => setActivityForm((prev) => ({ ...prev, description }))}
+        onSave={saveInlineActivity}
+        onClose={() => setActivityForm(null)}
+        isSaving={createActivity.isPending}
+      />
+
+    </div>
+  );
+}
+
+/* ─── Activity Popover ─── */
+function ActivityPopover({ form, onChange, onTypeChange, onSave, onClose, isSaving }) {
+  const ref = useRef(null);
+
+  // Compute position from snapshot rect stored in form
+  const pos = useMemo(() => {
+    if (!form?.rect) return null;
+    const W = 310;
+    const vw = window.innerWidth;
+    let left = form.rect.left;
+    if (left + W > vw - 12) left = vw - W - 12;
+    if (left < 12) left = 12;
+    // Try below first; if too close to bottom flip above
+    const spaceBelow = window.innerHeight - form.rect.bottom;
+    const top = spaceBelow > 180
+      ? form.rect.bottom + 8
+      : form.rect.top - 180;
+    return { top, left, width: W };
+  }, [form?.rect]);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!form) return;
+    function onDown(e) {
+      if (ref.current && !ref.current.contains(e.target)) onClose();
+    }
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [form, onClose]);
+
+  // Close on Escape
+  useEffect(() => {
+    if (!form) return;
+    function onKey(e) { if (e.key === "Escape") onClose(); }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [form, onClose]);
+
+  if (!form || !pos) return null;
+
+  const activeEntry = ACTIVITY_ICONS.find((a) => a.type === form.type);
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        position: "fixed",
+        top: pos.top,
+        left: pos.left,
+        width: pos.width,
+        zIndex: 1200,
+        background: "var(--surface-primary)",
+        border: "1px solid var(--border-default)",
+        borderRadius: "var(--radius-lg)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08)",
+        padding: "var(--space-4)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-3)",
+      }}
+    >
+      {/* Arrow caret */}
+      <div style={{
+        position: "absolute",
+        top: -7,
+        left: Math.min(Math.max(form.rect.left - pos.left + 10, 16), pos.width - 24),
+        width: 12,
+        height: 12,
+        background: "var(--surface-primary)",
+        border: "1px solid var(--border-default)",
+        borderBottom: "none",
+        borderRight: "none",
+        transform: "rotate(45deg)",
+        borderRadius: 2,
+      }} />
+
+      {/* Type switcher */}
+      <div style={{
+        display: "flex",
+        gap: 2,
+        background: "var(--surface-secondary)",
+        borderRadius: "var(--radius-md)",
+        padding: 3,
+      }}>
+        {ACTIVITY_ICONS.map(({ type, Icon, label }) => {
+          const active = form.type === type;
+          return (
+            <button
+              key={type}
+              onClick={() => onTypeChange(type)}
+              style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 4,
+                padding: "6px 4px",
+                borderRadius: "var(--radius-sm)",
+                border: "none",
+                cursor: "pointer",
+                fontSize: "var(--text-xs)",
+                fontWeight: active ? "var(--font-weight-semibold)" : "var(--font-weight-normal)",
+                background: active ? "var(--surface-primary)" : "transparent",
+                color: active ? "var(--color-primary-600)" : "var(--text-tertiary)",
+                boxShadow: active ? "0 1px 3px rgba(0,0,0,0.10)" : "none",
+                transition: "all 0.15s",
+                whiteSpace: "nowrap",
+              }}
+            >
+              <Icon size={13} />
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Description input */}
+      <input
+        autoFocus
+        value={form.description}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") { e.preventDefault(); onSave(); }
+          if (e.key === "Escape") onClose();
+        }}
+        placeholder={`Nota sobre la ${activeEntry?.label.toLowerCase()}… (opcional)`}
+        style={{
+          width: "100%",
+          padding: "var(--space-2) var(--space-3)",
+          fontSize: "var(--text-sm)",
+          border: "1px solid var(--border-default)",
+          borderRadius: "var(--radius-md)",
+          background: "var(--surface-secondary)",
+          color: "var(--text-primary)",
+          outline: "none",
+          boxSizing: "border-box",
+          transition: "border-color 0.15s",
+        }}
+        onFocus={(e) => (e.target.style.borderColor = "var(--border-active)")}
+        onBlur={(e) => (e.target.style.borderColor = "var(--border-default)")}
+      />
+
+      {/* Actions */}
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--space-2)" }}>
+        <button
+          onClick={onClose}
+          style={{
+            padding: "5px 14px",
+            borderRadius: "var(--radius-sm)",
+            border: "1px solid var(--border-default)",
+            background: "transparent",
+            color: "var(--text-secondary)",
+            fontSize: "var(--text-sm)",
+            cursor: "pointer",
+          }}
+        >
+          Cancelar
+        </button>
+        <button
+          onClick={onSave}
+          disabled={isSaving}
+          style={{
+            padding: "5px 14px",
+            borderRadius: "var(--radius-sm)",
+            border: "none",
+            background: "var(--color-primary-500)",
+            color: "#fff",
+            fontSize: "var(--text-sm)",
+            fontWeight: "var(--font-weight-medium)",
+            cursor: isSaving ? "not-allowed" : "pointer",
+            opacity: isSaving ? 0.7 : 1,
+            transition: "opacity 0.15s",
+          }}
+        >
+          {isSaving ? "Guardando…" : "Registrar"}
+        </button>
+      </div>
     </div>
   );
 }
