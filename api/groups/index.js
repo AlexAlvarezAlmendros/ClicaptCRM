@@ -15,8 +15,30 @@ async function handler(req, res) {
     /* ─── LIST ─── */
     case "GET": {
       const rows = await db.execute({
-        sql: `SELECT g.id, g.name, g.color, g.description,
-                     (SELECT COUNT(*) FROM contacts c WHERE c.group_id = g.id AND c.is_deleted = 0) as contact_count
+        sql: `SELECT
+                g.id, g.name, g.color, g.description,
+                (SELECT COUNT(*)
+                 FROM contacts c
+                 WHERE c.group_id = g.id AND c.is_deleted = 0
+                ) AS contact_count,
+                (SELECT COUNT(*)
+                 FROM deals d
+                 JOIN contacts c2 ON d.contact_id = c2.id
+                 WHERE c2.group_id = g.id AND c2.is_deleted = 0
+                   AND d.is_won = 0 AND d.is_lost = 0
+                ) AS active_deals,
+                (SELECT COALESCE(SUM(d2.value), 0)
+                 FROM deals d2
+                 JOIN contacts c3 ON d2.contact_id = c3.id
+                 WHERE c3.group_id = g.id AND c3.is_deleted = 0
+                   AND d2.is_won = 0 AND d2.is_lost = 0
+                ) AS pipeline_value,
+                (SELECT COUNT(*)
+                 FROM tasks t
+                 JOIN contacts c4 ON t.contact_id = c4.id
+                 WHERE c4.group_id = g.id AND c4.is_deleted = 0
+                   AND t.is_completed = 0
+                ) AS pending_tasks
               FROM contact_groups g
               WHERE g.organization_id = ?
               ORDER BY g.name ASC`,
@@ -88,18 +110,28 @@ async function handler(req, res) {
         return sendError(res, 400, "VALIDATION_ERROR", "Se requiere el ID del grupo");
       }
 
-      // Remove group assignment from contacts
-      await db.execute({
-        sql: "UPDATE contacts SET group_id = NULL WHERE group_id = ? AND organization_id = ?",
-        args: [groupId, orgId],
-      });
+      const deleteContacts = req.query?.deleteContacts === "true";
+
+      if (deleteContacts) {
+        // Soft-delete all contacts in this group
+        await db.execute({
+          sql: "UPDATE contacts SET is_deleted = 1 WHERE group_id = ? AND organization_id = ?",
+          args: [groupId, orgId],
+        });
+      } else {
+        // Just unlink contacts from the group
+        await db.execute({
+          sql: "UPDATE contacts SET group_id = NULL WHERE group_id = ? AND organization_id = ?",
+          args: [groupId, orgId],
+        });
+      }
 
       await db.execute({
         sql: "DELETE FROM contact_groups WHERE id = ? AND organization_id = ?",
         args: [groupId, orgId],
       });
 
-      return sendSuccess(res, 200, { deleted: true });
+      return sendSuccess(res, 200, { deleted: true, contactsDeleted: deleteContacts });
     }
 
     default:

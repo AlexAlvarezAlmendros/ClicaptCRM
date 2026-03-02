@@ -10,6 +10,7 @@ import ContactsPage from "../pages/ContactsPage";
 import ContactDetailPage from "../pages/ContactDetailPage";
 import PipelinePage from "../pages/PipelinePage";
 import TasksPage from "../pages/TasksPage";
+import GroupsPage from "../pages/GroupsPage";
 import SettingsPage from "../pages/SettingsPage";
 import NotFoundPage from "../pages/NotFoundPage";
 
@@ -35,6 +36,7 @@ export function AppRouter() {
           <Route path="/contactos/:id" element={<ErrorBoundary module="Detalle de contacto"><ContactDetailPage /></ErrorBoundary>} />
           <Route path="/pipeline" element={<ErrorBoundary module="Pipeline"><PipelinePage /></ErrorBoundary>} />
           <Route path="/tareas" element={<ErrorBoundary module="Tareas"><TasksPage /></ErrorBoundary>} />
+          <Route path="/grupos" element={<ErrorBoundary module="Grupos"><GroupsPage /></ErrorBoundary>} />
           <Route path="/configuracion" element={<ErrorBoundary module="Configuración"><SettingsPage /></ErrorBoundary>} />
         </Route>
 

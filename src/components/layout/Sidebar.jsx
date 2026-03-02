@@ -4,6 +4,7 @@ import {
   Users,
   Kanban,
   CheckSquare,
+  FolderOpen,
   Settings,
   Zap,
   PanelLeftClose,
@@ -15,6 +16,7 @@ import { useUiStore } from "../../stores/uiStore";
 const navItems = [
   { to: "/dashboard",     icon: LayoutDashboard, label: "Dashboard" },
   { to: "/contactos",     icon: Users,           label: "Contactos" },
+  { to: "/grupos",        icon: FolderOpen,      label: "Grupos" },
   { to: "/pipeline",      icon: Kanban,          label: "Pipeline" },
   { to: "/tareas",        icon: CheckSquare,     label: "Tareas" },
   { to: "/configuracion", icon: Settings,        label: "Configuración" },

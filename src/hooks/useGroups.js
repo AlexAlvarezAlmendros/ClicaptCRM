@@ -49,9 +49,9 @@ export function useDeleteGroup() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id) => {
+    mutationFn: async ({ id, deleteContacts = false }) => {
       const token = await getToken();
-      return apiClient.delete(`/api/groups?id=${id}`, token);
+      return apiClient.delete(`/api/groups?id=${id}&deleteContacts=${deleteContacts}`, token);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["groups"] });

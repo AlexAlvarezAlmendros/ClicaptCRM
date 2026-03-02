@@ -70,7 +70,7 @@ export function GroupSettings() {
   async function handleDelete() {
     if (!deleteId) return;
     try {
-      await deleteGroup.mutateAsync(deleteId);
+      await deleteGroup.mutateAsync({ id: deleteId, deleteContacts: false });
       addToast({ type: "success", message: "Grupo eliminado" });
     } catch (err) {
       addToast({ type: "error", message: err.message || "Error al eliminar" });

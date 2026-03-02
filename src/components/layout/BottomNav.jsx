@@ -1,9 +1,10 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, Kanban, CheckSquare, Settings } from "lucide-react";
+import { LayoutDashboard, Users, FolderOpen, Kanban, CheckSquare, Settings } from "lucide-react";
 
 const navItems = [
   { to: "/dashboard",     icon: LayoutDashboard, label: "Dashboard" },
   { to: "/contactos",     icon: Users,           label: "Contactos" },
+  { to: "/grupos",        icon: FolderOpen,      label: "Grupos" },
   { to: "/pipeline",      icon: Kanban,          label: "Pipeline" },
   { to: "/tareas",        icon: CheckSquare,     label: "Tareas" },
   { to: "/configuracion", icon: Settings,        label: "Config" },
