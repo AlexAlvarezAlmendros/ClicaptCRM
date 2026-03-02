@@ -7,7 +7,7 @@ import { Table } from "../ui/Table";
 import { Spinner } from "../ui/Spinner";
 import { useToast } from "../ui/Toast";
 import { useToken } from "../../hooks/useToken";
-import { useGroups } from "../../hooks/useGroups";
+import { useGroups, useCreateGroup } from "../../hooks/useGroups";
 import { apiClient } from "../../lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -19,6 +19,8 @@ import {
   AlertTriangle,
   X,
   Info,
+  PlusCircle,
+  Users,
 } from "lucide-react";
 
 // CRM fields the user can map CSV columns to
@@ -189,8 +191,24 @@ export function CSVImportWizard({ isOpen, onClose }) {
   const queryClient = useQueryClient();
   const { addToast } = useToast();
   const { data: groupsData } = useGroups();
+  const createGroupMutation = useCreateGroup();
   const groups = groupsData?.data || [];
   const groupOptions = groups.map((g) => ({ value: String(g.id), label: g.name }));
+
+  const handleCreateGroup = useCallback(async (name) => {
+    try {
+      const result = await createGroupMutation.mutateAsync({ name: name.trim(), color: "#6B7280" });
+      const newGroup = result?.data;
+      if (newGroup?.id) {
+        setSelectedGroupId(String(newGroup.id));
+        addToast({ type: "success", message: `Grupo «${newGroup.name}» creado y seleccionado.` });
+      }
+      return newGroup;
+    } catch (err) {
+      addToast({ type: "error", message: err.message || "Error al crear el grupo" });
+      return null;
+    }
+  }, [createGroupMutation, addToast]);
 
   // Reset wizard state
   const resetWizard = useCallback(() => {
@@ -394,6 +412,8 @@ export function CSVImportWizard({ isOpen, onClose }) {
             groupOptions={groupOptions}
             selectedGroupId={selectedGroupId}
             onGroupChange={setSelectedGroupId}
+            onCreateGroup={handleCreateGroup}
+            isCreatingGroup={createGroupMutation.isPending}
           />
         )}
 
@@ -707,8 +727,19 @@ function MappingStep({ headers, sampleRows, mapping, onMappingChange, mappingVal
 }
 
 /* ─── Step 3: Preview ─── */
-function PreviewStep({ data, fields, totalRows, onBack, onImport, groupOptions, selectedGroupId, onGroupChange }) {
+function PreviewStep({ data, fields, totalRows, onBack, onImport, groupOptions, selectedGroupId, onGroupChange, onCreateGroup, isCreatingGroup }) {
   const showing = Math.min(data.length, 50);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
+
+  const handleSubmitNewGroup = async () => {
+    if (!newGroupName.trim()) return;
+    const created = await onCreateGroup(newGroupName);
+    if (created) {
+      setNewGroupName("");
+      setShowCreateForm(false);
+    }
+  };
 
   return (
     <div>
@@ -800,33 +831,91 @@ function PreviewStep({ data, fields, totalRows, onBack, onImport, groupOptions, 
       </div>
 
       {/* Group selector */}
-      {groupOptions.length > 0 && (
-        <div
-          style={{
-            marginTop: "var(--space-4)",
-            padding: "var(--space-3) var(--space-4)",
-            background: "var(--surface-secondary)",
-            borderRadius: "var(--radius-md)",
-            display: "flex",
-            alignItems: "center",
-            gap: "var(--space-3)",
-          }}
-        >
-          <div style={{ flex: 1, maxWidth: 280 }}>
-            <Select
-              label="Asignar grupo"
-              name="group_id"
-              value={selectedGroupId}
-              onChange={(e) => onGroupChange(e.target.value)}
-              options={groupOptions}
-              placeholder="Sin grupo"
-            />
-          </div>
-          <p style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginTop: 18 }}>
-            Todos los contactos importados se asignarán a este grupo.
-          </p>
+      <div
+        style={{
+          marginTop: "var(--space-4)",
+          padding: "var(--space-4)",
+          background: "var(--surface-secondary)",
+          borderRadius: "var(--radius-md)",
+          border: "1px solid var(--border-default)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
+          <Users size={15} style={{ color: "var(--text-secondary)" }} />
+          <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--font-weight-medium)", color: "var(--text-primary)" }}>
+            Asignar a un grupo <span style={{ fontWeight: "var(--font-weight-normal)", color: "var(--text-tertiary)" }}>(opcional)</span>
+          </span>
         </div>
-      )}
+
+        {!showCreateForm ? (
+          <div style={{ display: "flex", alignItems: "flex-end", gap: "var(--space-3)", flexWrap: "wrap" }}>
+            <div style={{ flex: "1 1 220px", minWidth: 0 }}>
+              <Select
+                name="group_id"
+                value={selectedGroupId}
+                onChange={(e) => onGroupChange(e.target.value)}
+                options={groupOptions}
+                placeholder={groupOptions.length > 0 ? "Sin grupo" : "No hay grupos todavía"}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowCreateForm(true)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-1)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "var(--color-primary-500)",
+                fontSize: "var(--text-sm)",
+                fontWeight: "var(--font-weight-medium)",
+                padding: "var(--space-2) 0",
+                whiteSpace: "nowrap",
+              }}
+            >
+              <PlusCircle size={15} />
+              Crear nuevo grupo
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" }}>
+            <input
+              autoFocus
+              className="input"
+              type="text"
+              placeholder="Nombre del grupo…"
+              value={newGroupName}
+              onChange={(e) => setNewGroupName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmitNewGroup()}
+              style={{ flex: "1 1 180px", minWidth: 0, padding: "var(--space-2) var(--space-3)", fontSize: "var(--text-sm)" }}
+            />
+            <Button
+              size="sm"
+              onClick={handleSubmitNewGroup}
+              disabled={!newGroupName.trim() || isCreatingGroup}
+              isLoading={isCreatingGroup}
+              leftIcon={PlusCircle}
+            >
+              {isCreatingGroup ? "Creando…" : "Crear"}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => { setShowCreateForm(false); setNewGroupName(""); }}
+            >
+              Cancelar
+            </Button>
+          </div>
+        )}
+
+        {selectedGroupId && (
+          <p style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginTop: "var(--space-2)" }}>
+            Todos los contactos importados se añadirán al grupo seleccionado.
+          </p>
+        )}
+      </div>
 
       {/* Actions */}
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: "var(--space-5)" }}>
