@@ -33,7 +33,7 @@ export function GroupSettings() {
   const [form, setForm] = useState({ name: "", color: "#3B82F6", description: "" });
   const [deleteId, setDeleteId] = useState(null);
 
-  const groups = data?.data || [];
+  const groups = data || [];
 
   function resetForm() {
     setForm({ name: "", color: "#3B82F6", description: "" });

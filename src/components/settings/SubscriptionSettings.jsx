@@ -28,7 +28,7 @@ export function SubscriptionSettings() {
     );
   }
 
-  const org = data?.data || {};
+  const org = data || {};
   const planInfo = PLANS.find((p) => p.value === org.plan) || { label: org.plan || "Desconocido" };
   const status = STATUS_MAP[org.subscription_status] || STATUS_MAP.expired;
   const trialEnd = org.trial_ends_at ? new Date(org.trial_ends_at) : null;

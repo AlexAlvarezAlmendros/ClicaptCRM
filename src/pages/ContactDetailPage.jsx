@@ -64,7 +64,7 @@ export default function ContactDetailPage() {
     );
   }
 
-  const contact = data?.data;
+  const contact = data;
 
   if (!contact) {
     return (

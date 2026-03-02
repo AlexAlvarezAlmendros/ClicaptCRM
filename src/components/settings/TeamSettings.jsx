@@ -17,7 +17,7 @@ export function TeamSettings() {
   const [showInvite, setShowInvite] = useState(false);
   const [inviteForm, setInviteForm] = useState({ email: "", name: "", role: "user" });
 
-  const members = data?.data || [];
+  const members = data || [];
 
   function handleChange(e) {
     const { name, value } = e.target;

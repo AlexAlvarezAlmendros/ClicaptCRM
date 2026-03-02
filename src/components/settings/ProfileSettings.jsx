@@ -15,11 +15,11 @@ export function ProfileSettings() {
   const [form, setForm] = useState({ name: "", surname: "", avatar_url: "" });
 
   useEffect(() => {
-    if (data?.data) {
+    if (data) {
       setForm({
-        name: data.data.name || "",
-        surname: data.data.surname || "",
-        avatar_url: data.data.avatar_url || "",
+        name: data.name || "",
+        surname: data.surname || "",
+        avatar_url: data.avatar_url || "",
       });
     }
   }, [data]);
@@ -47,7 +47,7 @@ export function ProfileSettings() {
     );
   }
 
-  const profile = data?.data;
+  const profile = data;
 
   return (
     <Card>

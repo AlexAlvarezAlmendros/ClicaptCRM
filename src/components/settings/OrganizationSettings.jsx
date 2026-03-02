@@ -22,8 +22,8 @@ export function OrganizationSettings() {
   });
 
   useEffect(() => {
-    if (data?.data) {
-      const d = data.data;
+    if (data) {
+      const d = data;
       setForm({
         name: d.name || "",
         fiscal_name: d.fiscal_name || "",

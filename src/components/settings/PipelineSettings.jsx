@@ -16,8 +16,8 @@ export function PipelineSettings() {
   const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
-    if (data?.data) {
-      setStages(data.data.map((s) => ({ ...s })));
+    if (data) {
+      setStages(data.map((s) => ({ ...s })));
       setDirty(false);
     }
   }, [data]);
