@@ -1,4 +1,4 @@
-export function Table({ children, className = "" }) {
+export function Table({ children, className = "", style = {} }) {
   return (
     <div style={{ overflowX: "auto" }}>
       <table
@@ -7,6 +7,7 @@ export function Table({ children, className = "" }) {
           width: "100%",
           borderCollapse: "collapse",
           fontSize: "var(--text-sm)",
+          ...style,
         }}
       >
         {children}

@@ -309,15 +309,15 @@ export default function ContactsPage() {
       ) : (
         /* Desktop: Table view */
         <div className="card" style={{ overflowX: "auto" }}>
-          <Table>
+          <Table style={{ tableLayout: "fixed", minWidth: 640 }}>
             <Table.Head>
               <tr>
-                <Table.Th>Empresa</Table.Th>
-                <Table.Th>Email</Table.Th>
-                <Table.Th>Teléfono</Table.Th>
-                <Table.Th>Estado</Table.Th>
-                <Table.Th>Notas</Table.Th>
-                <Table.Th>Actividad</Table.Th>
+                <Table.Th style={{ width: "22%" }}>Empresa</Table.Th>
+                <Table.Th style={{ width: "22%" }}>Email</Table.Th>
+                <Table.Th style={{ width: "13%" }}>Teléfono</Table.Th>
+                <Table.Th style={{ width: "11%" }}>Estado</Table.Th>
+                <Table.Th style={{ width: "22%" }}>Notas</Table.Th>
+                <Table.Th style={{ width: "10%" }}>Actividad</Table.Th>
               </tr>
             </Table.Head>
             <Table.Body>
@@ -330,12 +330,11 @@ export default function ContactsPage() {
                   >
                     {/* Empresa + nombre */}
                     <Table.Td>
-                      <div style={{ lineHeight: 1.3, maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        <span style={{ fontWeight: "var(--font-weight-medium)" }} title={contact.company || ""}>
+                      <div style={{ lineHeight: 1.3, overflow: "hidden" }}>
+                        <span style={{ fontWeight: "var(--font-weight-medium)", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={contact.company || ""}>
                           {contact.company || "—"}
                         </span>
-                        <br />
-                        <span style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)" }} title={`${contact.name} ${contact.surname || ""}`}>
+                        <span style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={`${contact.name} ${contact.surname || ""}`}>
                           {contact.name} {contact.surname || ""}
                         </span>
                       </div>
@@ -359,7 +358,7 @@ export default function ContactsPage() {
                       ) : (
                         <span
                           onClick={() => startInlineEdit(contact.id, "email", contact.email)}
-                          style={{ cursor: "pointer", fontSize: "var(--text-sm)", borderBottom: "1px dashed var(--border-default)", maxWidth: 100, display: "inline-block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                          style={{ cursor: "pointer", fontSize: "var(--text-sm)", borderBottom: "1px dashed var(--border-default)", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
                           title={contact.email || "Clic para editar"}
                         >
                           {contact.email || "—"}
@@ -430,8 +429,7 @@ export default function ContactsPage() {
                             fontSize: "var(--text-sm)",
                             color: contact.notes ? "var(--text-primary)" : "var(--text-tertiary)",
                             borderBottom: "1px dashed var(--border-default)",
-                            maxWidth: 180,
-                            display: "inline-block",
+                            display: "block",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
