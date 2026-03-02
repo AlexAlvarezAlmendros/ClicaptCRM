@@ -6,7 +6,7 @@ import { RotateCcw } from "lucide-react";
 
 export function ContactFilters({ filters, onChange, onReset }) {
   const { data: groupsData } = useGroups();
-  const groups = groupsData?.data || [];
+  const groups = groupsData || [];
   const groupOptions = groups.map((g) => ({ value: String(g.id), label: g.name }));
   const hasFilters = filters.status || filters.source || filters.group_id;
 

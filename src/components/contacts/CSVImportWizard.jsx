@@ -192,23 +192,31 @@ export function CSVImportWizard({ isOpen, onClose }) {
   const { addToast } = useToast();
   const { data: groupsData } = useGroups();
   const createGroupMutation = useCreateGroup();
-  const groups = groupsData?.data || [];
+  const groups = groupsData || [];
   const groupOptions = groups.map((g) => ({ value: String(g.id), label: g.name }));
 
   const handleCreateGroup = useCallback(async (name) => {
     try {
-      const result = await createGroupMutation.mutateAsync({ name: name.trim(), color: "#6B7280" });
-      const newGroup = result?.data;
+      const newGroup = await createGroupMutation.mutateAsync({ name: name.trim(), color: "#6B7280" });
       if (newGroup?.id) {
         setSelectedGroupId(String(newGroup.id));
         addToast({ type: "success", message: `Grupo «${newGroup.name}» creado y seleccionado.` });
       }
       return newGroup;
     } catch (err) {
+      // 409 = group already exists → find it and auto-select it
+      if (err.status === 409 || err.code === "DUPLICATE") {
+        const existing = groups.find((g) => g.name.toLowerCase() === name.trim().toLowerCase());
+        if (existing) {
+          setSelectedGroupId(String(existing.id));
+          addToast({ type: "info", message: `El grupo «${existing.name}» ya existe y ha sido seleccionado.` });
+          return existing;
+        }
+      }
       addToast({ type: "error", message: err.message || "Error al crear el grupo" });
       return null;
     }
-  }, [createGroupMutation, addToast]);
+  }, [createGroupMutation, addToast, groups]);
 
   // Reset wizard state
   const resetWizard = useCallback(() => {

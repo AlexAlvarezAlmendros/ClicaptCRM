@@ -38,7 +38,7 @@ export function ContactForm({ isOpen, onClose, contact = null }) {
   const createContact = useCreateContact();
   const updateContact = useUpdateContact();
   const { data: groupsData } = useGroups();
-  const groups = groupsData?.data || [];
+  const groups = groupsData || [];
   const groupOptions = groups.map((g) => ({ value: String(g.id), label: g.name }));
   const { addToast } = useToast();
 
