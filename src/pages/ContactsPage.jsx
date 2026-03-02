@@ -43,6 +43,20 @@ const ACTIVITY_ICONS = [
   { type: "note",    Icon: FileText, label: "Nota" },
 ];
 
+const EXPORT_COLUMNS = [
+  { key: "name",       label: "Nombre",         default: true },
+  { key: "surname",    label: "Apellido",        default: true },
+  { key: "email",      label: "Email",           default: true },
+  { key: "phone",      label: "Teléfono",        default: true },
+  { key: "company",    label: "Empresa",         default: true },
+  { key: "job_title",  label: "Cargo",           default: false },
+  { key: "website",    label: "Página web",      default: false },
+  { key: "status",     label: "Estado",          default: true },
+  { key: "source",     label: "Origen",          default: false },
+  { key: "notes",      label: "Notas",           default: false },
+  { key: "created_at", label: "Fecha creación",  default: false },
+];
+
 const STATUS_BADGES = {
   new: { label: "Nuevo", variant: "primary" },
   contacted: { label: "Contactado", variant: "neutral" },
@@ -61,6 +75,8 @@ export default function ContactsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportColumns, setExportColumns] = useState(() => new Set(EXPORT_COLUMNS.filter((c) => c.default).map((c) => c.key)));
   const [groupOpen, setGroupOpen] = useState(false);
   const [groupForm, setGroupForm] = useState({ name: "", color: "#3B82F6", description: "" });
   const [editingCell, setEditingCell] = useState(null);
@@ -110,12 +126,14 @@ export default function ContactsPage() {
   }, [resetFilters]);
 
   // CSV Export
-  async function handleExport() {
+  async function handleExport(columns) {
     try {
       const token = await getToken();
-      const response = await fetch("/api/contacts/export", {
+      const qs = columns && columns.size > 0 ? `?columns=${[...columns].join(",")}` : "";
+      const response = await fetch(`/api/contacts/export${qs}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (!response.ok) throw new Error("Error al exportar");
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -123,8 +141,9 @@ export default function ContactsPage() {
       a.download = `contactos_${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
+      setExportOpen(false);
     } catch (err) {
-      console.error("Export failed:", err);
+      addToast({ type: "error", message: "Error al exportar: " + (err.message || "") });
     }
   }
 
@@ -221,7 +240,7 @@ export default function ContactsPage() {
       >
         <h1 className="text-h1">Contactos</h1>
         <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
-          <Button variant="outline" size="sm" leftIcon={Download} onClick={handleExport}>
+          <Button variant="outline" size="sm" leftIcon={Download} onClick={() => setExportOpen(true)}>
             Exportar
           </Button>
           <Button variant="outline" size="sm" leftIcon={Upload} onClick={() => setImportOpen(true)} disabled={!canWrite}>
@@ -604,6 +623,21 @@ export default function ContactsPage() {
         isSaving={createActivity.isPending}
       />
 
+      {/* Export column picker */}
+      <ExportDialog
+        isOpen={exportOpen}
+        columns={exportColumns}
+        onToggle={(key) => setExportColumns((prev) => {
+          const next = new Set(prev);
+          next.has(key) ? next.delete(key) : next.add(key);
+          return next;
+        })}
+        onSelectAll={() => setExportColumns(new Set(EXPORT_COLUMNS.map((c) => c.key)))}
+        onSelectNone={() => setExportColumns(new Set())}
+        onExport={() => handleExport(exportColumns)}
+        onClose={() => setExportOpen(false)}
+      />
+
     </div>
   );
 }
@@ -784,6 +818,194 @@ function ActivityPopover({ form, onChange, onTypeChange, onSave, onClose, isSavi
         >
           {isSaving ? "Guardando…" : "Registrar"}
         </button>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Export Column Picker Dialog ─── */
+function ExportDialog({ isOpen, columns, onToggle, onSelectAll, onSelectNone, onExport, onClose }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    function onDown(e) {
+      if (ref.current && !ref.current.contains(e.target)) onClose();
+    }
+    function onKey(e) { if (e.key === "Escape") onClose(); }
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  const allSelected = EXPORT_COLUMNS.every((c) => columns.has(c.key));
+  const noneSelected = columns.size === 0;
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 1100,
+      background: "rgba(0,0,0,0.35)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: "var(--space-4)",
+    }}>
+      <div
+        ref={ref}
+        style={{
+          background: "var(--surface-primary)",
+          borderRadius: "var(--radius-xl)",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.20)",
+          width: "100%",
+          maxWidth: 420,
+          overflow: "hidden",
+        }}
+      >
+        {/* Header */}
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "var(--space-4) var(--space-5)",
+          borderBottom: "1px solid var(--border-default)",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+            <Download size={18} style={{ color: "var(--color-primary-500)" }} />
+            <span style={{ fontWeight: "var(--font-weight-semibold)", fontSize: "var(--text-base)", color: "var(--text-primary)" }}>
+              Exportar contactos
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-tertiary)", display: "flex", alignItems: "center", padding: 4, borderRadius: "var(--radius-sm)" }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: "var(--space-4) var(--space-5)" }}>
+          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", marginBottom: "var(--space-3)" }}>
+            Elige las columnas que se incluirán en el archivo CSV.
+          </p>
+
+          {/* Select all / none */}
+          <div style={{ display: "flex", gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
+            <button
+              onClick={onSelectAll}
+              disabled={allSelected}
+              style={{
+                fontSize: "var(--text-xs)", padding: "3px 10px",
+                borderRadius: "var(--radius-full)",
+                border: "1px solid var(--border-default)",
+                background: allSelected ? "var(--surface-secondary)" : "var(--surface-primary)",
+                color: allSelected ? "var(--text-tertiary)" : "var(--color-primary-600)",
+                cursor: allSelected ? "default" : "pointer",
+                fontWeight: "var(--font-weight-medium)",
+              }}
+            >
+              Todas
+            </button>
+            <button
+              onClick={onSelectNone}
+              disabled={noneSelected}
+              style={{
+                fontSize: "var(--text-xs)", padding: "3px 10px",
+                borderRadius: "var(--radius-full)",
+                border: "1px solid var(--border-default)",
+                background: noneSelected ? "var(--surface-secondary)" : "var(--surface-primary)",
+                color: noneSelected ? "var(--text-tertiary)" : "var(--text-secondary)",
+                cursor: noneSelected ? "default" : "pointer",
+                fontWeight: "var(--font-weight-medium)",
+              }}
+            >
+              Ninguna
+            </button>
+          </div>
+
+          {/* Column checkboxes */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "1fr 1fr",
+            gap: "var(--space-1)",
+            maxHeight: 280, overflowY: "auto",
+          }}>
+            {EXPORT_COLUMNS.map(({ key, label }) => {
+              const checked = columns.has(key);
+              return (
+                <label
+                  key={key}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "var(--space-2)",
+                    padding: "var(--space-2) var(--space-3)",
+                    borderRadius: "var(--radius-md)",
+                    cursor: "pointer",
+                    background: checked ? "var(--color-primary-50)" : "transparent",
+                    border: `1px solid ${checked ? "var(--color-primary-200)" : "transparent"}`,
+                    transition: "background 0.12s, border-color 0.12s",
+                    userSelect: "none",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => onToggle(key)}
+                    style={{ accentColor: "var(--color-primary-500)", width: 15, height: 15, cursor: "pointer", flexShrink: 0 }}
+                  />
+                  <span style={{
+                    fontSize: "var(--text-sm)",
+                    color: checked ? "var(--color-primary-700)" : "var(--text-primary)",
+                    fontWeight: checked ? "var(--font-weight-medium)" : "var(--font-weight-normal)",
+                  }}>
+                    {label}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          padding: "var(--space-3) var(--space-5)",
+          borderTop: "1px solid var(--border-default)",
+          background: "var(--surface-secondary)",
+        }}>
+          <span style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>
+            {columns.size} columna{columns.size !== 1 ? "s" : ""} seleccionada{columns.size !== 1 ? "s" : ""}
+          </span>
+          <div style={{ display: "flex", gap: "var(--space-2)" }}>
+            <button
+              onClick={onClose}
+              style={{
+                padding: "6px 16px", borderRadius: "var(--radius-sm)",
+                border: "1px solid var(--border-default)",
+                background: "transparent", color: "var(--text-secondary)",
+                fontSize: "var(--text-sm)", cursor: "pointer",
+              }}
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={onExport}
+              disabled={columns.size === 0}
+              style={{
+                padding: "6px 16px", borderRadius: "var(--radius-sm)",
+                border: "none",
+                background: columns.size === 0 ? "var(--surface-tertiary)" : "var(--color-primary-500)",
+                color: columns.size === 0 ? "var(--text-tertiary)" : "#fff",
+                fontSize: "var(--text-sm)", fontWeight: "var(--font-weight-medium)",
+                cursor: columns.size === 0 ? "not-allowed" : "pointer",
+                display: "flex", alignItems: "center", gap: 6,
+                transition: "background 0.15s",
+              }}
+            >
+              <Download size={14} />
+              Exportar CSV
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
