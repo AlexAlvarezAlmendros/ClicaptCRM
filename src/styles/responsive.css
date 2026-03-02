@@ -147,3 +147,49 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ─── PANTALLAS GRANDES (≥ 1440px / 1440p) ─── */
+@media (min-width: 1440px) {
+  :root {
+    --content-max-width: 1600px;
+    --sidebar-width: 280px;
+  }
+
+  .app-layout__content {
+    padding: var(--space-8);
+  }
+}
+
+/* ─── PANTALLAS 2K / QHD (≥ 1920px) ─── */
+@media (min-width: 1920px) {
+  :root {
+    --sidebar-width: 300px;
+    --header-height: 72px;
+  }
+
+  /* Sin límite de ancho — la tabla y grids usan todo el espacio */
+  .app-layout__content {
+    max-width: none;
+    padding: var(--space-10);
+  }
+
+  .dashboard-grid-2col {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .contact-detail-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .org-grid-2col {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .org-grid-3col {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .settings-sidebar {
+    flex: 0 0 240px;
+  }
+}
