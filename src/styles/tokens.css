@@ -1,5 +1,5 @@
 /* ================================================================
-   LEADFLOW CRM — Design Tokens
+   CLICAPT CRM — Design Tokens
    Toda la UI se construye sobre estas variables.
    Para crear un tema nuevo, basta con redefinir este bloque.
    ================================================================ */
@@ -9,16 +9,16 @@
    ──────────────────────────────────────────────────────────────── */
 :root {
   /* ─── Colores de marca ─── */
-  --color-primary-50:  #EFF6FF;
-  --color-primary-100: #DBEAFE;
-  --color-primary-200: #BFDBFE;
-  --color-primary-300: #93C5FD;
-  --color-primary-400: #60A5FA;
-  --color-primary-500: #3B82F6;   /* ← Principal */
-  --color-primary-600: #2563EB;
-  --color-primary-700: #1D4ED8;
-  --color-primary-800: #1E40AF;
-  --color-primary-900: #1E3A8A;
+  --color-primary-50:  #FFF7ED;
+  --color-primary-100: #FFEDD5;
+  --color-primary-200: #FED7AA;
+  --color-primary-300: #FDBA74;
+  --color-primary-400: #FB923C;
+  --color-primary-500: #F97316;   /* ← Principal */
+  --color-primary-600: #EA580C;
+  --color-primary-700: #C2410C;
+  --color-primary-800: #9A3412;
+  --color-primary-900: #7C2D12;
 
   /* ─── Escala de grises (Slate) ─── */
   --color-gray-25:  #FCFCFD;
@@ -88,7 +88,7 @@
   /* ─── Bordes ─── */
   --border-default:  #E2E8F0;
   --border-hover:    #CBD5E1;
-  --border-focus:    #3B82F6;
+  --border-focus:    #F97316;
   --border-error:    #EF4444;
 
   /* ─── Sombras ─── */
@@ -97,7 +97,7 @@
   --shadow-md:   0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
   --shadow-lg:   0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
   --shadow-xl:   0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  --shadow-focus-ring: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  --shadow-focus-ring: 0 0 0 3px rgba(249, 115, 22, 0.3);
   --shadow-error-ring: 0 0 0 3px rgba(239, 68, 68, 0.3);
 
   /* ─── Tipografía ─── */
@@ -180,16 +180,16 @@
    ──────────────────────────────────────────────────────────────── */
 [data-theme="dark"] {
   /* ─── Colores de marca (ajustados para contraste en oscuro) ─── */
-  --color-primary-50:  #172554;
-  --color-primary-100: #1E3A8A;
-  --color-primary-200: #1D4ED8;
-  --color-primary-300: #2563EB;
-  --color-primary-400: #3B82F6;
-  --color-primary-500: #60A5FA;
-  --color-primary-600: #93C5FD;
-  --color-primary-700: #BFDBFE;
-  --color-primary-800: #DBEAFE;
-  --color-primary-900: #EFF6FF;
+  --color-primary-50:  #7C2D12;
+  --color-primary-100: #9A3412;
+  --color-primary-200: #C2410C;
+  --color-primary-300: #EA580C;
+  --color-primary-400: #F97316;
+  --color-primary-500: #FB923C;
+  --color-primary-600: #FDBA74;
+  --color-primary-700: #FED7AA;
+  --color-primary-800: #FFEDD5;
+  --color-primary-900: #FFF7ED;
 
   /* ─── Colores semánticos (ajustados) ─── */
   --color-success-50:  #052E16;
@@ -225,14 +225,14 @@
   --text-secondary:  #94A3B8;
   --text-tertiary:   #8896AB;
   --text-inverse:    #0F172A;
-  --text-link:       #60A5FA;
-  --text-link-hover: #93C5FD;
+  --text-link:       #FB923C;
+  --text-link-hover: #FDBA74;
   --text-on-primary: #FFFFFF;
 
   /* ─── Bordes ─── */
   --border-default:  #1E293B;
   --border-hover:    #334155;
-  --border-focus:    #60A5FA;
+  --border-focus:    #FB923C;
   --border-error:    #F87171;
 
   /* ─── Sombras (más sutiles en oscuro) ─── */
@@ -241,7 +241,7 @@
   --shadow-md:   0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
   --shadow-lg:   0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
   --shadow-xl:   0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
-  --shadow-focus-ring: 0 0 0 3px rgba(96, 165, 250, 0.35);
+  --shadow-focus-ring: 0 0 0 3px rgba(249, 115, 22, 0.35);
   --shadow-error-ring: 0 0 0 3px rgba(248, 113, 113, 0.35);
 }
 
@@ -269,7 +269,7 @@
 
     --border-default:  #1E293B;
     --border-hover:    #334155;
-    --border-focus:    #60A5FA;
+    --border-focus:    #FB923C;
     --border-error:    #F87171;
 
     --shadow-xs:   0 1px 2px 0 rgba(0, 0, 0, 0.3);
@@ -277,10 +277,10 @@
     --shadow-md:   0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
     --shadow-lg:   0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
     --shadow-xl:   0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
-    --shadow-focus-ring: 0 0 0 3px rgba(96, 165, 250, 0.35);
+    --shadow-focus-ring: 0 0 0 3px rgba(249, 115, 22, 0.35);
     --shadow-error-ring: 0 0 0 3px rgba(248, 113, 113, 0.35);
 
-    --color-primary-500: #60A5FA;
+    --color-primary-500: #FB923C;
     --color-success-500: #22C55E;
     --color-warning-500: #F59E0B;
     --color-danger-500:  #EF4444;

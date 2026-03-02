@@ -20,7 +20,7 @@ export const ACTIVITY_TYPES = [
 ];
 
 export const DEFAULT_PIPELINE_STAGES = [
-  { name: "Nuevo Lead",        color: "#3B82F6", probability: 10,  position: 1, is_won: false, is_lost: false },
+  { name: "Nuevo Lead",        color: "#F97316", probability: 10,  position: 1, is_won: false, is_lost: false },
   { name: "Contactado",        color: "#8B5CF6", probability: 25,  position: 2, is_won: false, is_lost: false },
   { name: "Propuesta Enviada", color: "#F59E0B", probability: 50,  position: 3, is_won: false, is_lost: false },
   { name: "Negociación",       color: "#F97316", probability: 75,  position: 4, is_won: false, is_lost: false },

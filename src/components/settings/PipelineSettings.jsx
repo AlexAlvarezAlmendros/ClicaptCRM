@@ -37,7 +37,7 @@ export function PipelineSettings() {
       {
         id: null,
         name: "",
-        color: "#3B82F6",
+        color: "#F97316",
         probability: 0,
         position: prev.length + 1,
         is_won: 0,
@@ -134,7 +134,7 @@ export function PipelineSettings() {
               {/* Color picker */}
               <input
                 type="color"
-                value={stage.color || "#3B82F6"}
+                value={stage.color || "#F97316"}
                 onChange={(e) => handleFieldChange(i, "color", e.target.value)}
                 style={{ width: 28, height: 28, padding: 0, border: "none", borderRadius: "var(--radius-sm)", cursor: "pointer" }}
               />

@@ -1,4 +1,4 @@
-// LeadFlow CRM — Formatters
+// CliCapt CRM — Formatters
 
 /**
  * Format a number as EUR currency

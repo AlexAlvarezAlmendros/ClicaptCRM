@@ -1,4 +1,4 @@
-// LeadFlow CRM — Frontend Utilities
+// CliCapt CRM — Frontend Utilities
 
 /**
  * Merge class names (simple cn utility)

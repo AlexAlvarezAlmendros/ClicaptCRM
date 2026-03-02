@@ -61,7 +61,7 @@ export default function LoginPage() {
         </div>
 
         <h1 className="text-h1" style={{ marginBottom: "var(--space-2)" }}>
-          LeadFlow CRM
+          CliCapt CRM
         </h1>
         <p className="text-body-sm" style={{ marginBottom: "var(--space-8)" }}>
           Gestiona tus contactos y oportunidades de venta de forma eficiente.

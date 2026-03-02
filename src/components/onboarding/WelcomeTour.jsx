@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Users, Kanban, CheckSquare, Sparkles, ArrowRight, X } from "lucide-react";
 import { Button } from "../ui/Button";
 
-const TOUR_STORAGE_KEY = "leadflow_tour_completed";
+const TOUR_STORAGE_KEY = "clicapt_tour_completed";
 
 const STEPS = [
   {
     icon: Sparkles,
-    title: "¡Bienvenido a LeadFlow!",
+    title: "¡Bienvenido a CliCapt!",
     description:
       "Tu CRM inteligente para gestionar contactos, oportunidades de venta y tareas. Te guiamos en tus primeros pasos.",
     action: null,

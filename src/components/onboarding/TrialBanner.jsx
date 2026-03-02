@@ -44,7 +44,7 @@ export function TrialBanner() {
   if (isExpired) {
     bannerClass += " trial-banner--danger";
     Icon = AlertTriangle;
-    message = "Tu periodo de prueba ha expirado. Elige un plan para seguir usando LeadFlow.";
+    message = "Tu periodo de prueba ha expirado. Elige un plan para seguir usando CliCapt.";
     ctaText = "Elegir plan";
   } else if (isUrgent) {
     bannerClass += " trial-banner--danger";

@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS pipeline_stages (
     id                TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
     organization_id   TEXT NOT NULL REFERENCES organizations(id),
     name              TEXT NOT NULL,
-    color             TEXT NOT NULL DEFAULT '#3B82F6',
+    color             TEXT NOT NULL DEFAULT '#F97316',
     probability       INTEGER DEFAULT 0 CHECK (probability >= 0 AND probability <= 100),
     position          INTEGER NOT NULL,
     is_won            BOOLEAN DEFAULT 0,

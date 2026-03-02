@@ -1,4 +1,4 @@
-# LeadFlow CRM
+# CliCapt CRM
 
 CRM para pequeñas empresas y freelancers españoles. Gestión de contactos, pipeline de ventas (kanban), tareas y suscripción con Stripe.
 

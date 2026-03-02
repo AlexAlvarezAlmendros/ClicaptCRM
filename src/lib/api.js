@@ -1,4 +1,4 @@
-// LeadFlow CRM — API Client (fetch wrapper + auth)
+// CliCapt CRM — API Client (fetch wrapper + auth)
 
 class ApiClient {
   constructor(baseUrl = "") {

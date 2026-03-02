@@ -1,4 +1,4 @@
-// LeadFlow CRM — Frontend Constants
+// CliCapt CRM — Frontend Constants
 
 export const CONTACT_SOURCES = [
   { value: "web", label: "Web" },

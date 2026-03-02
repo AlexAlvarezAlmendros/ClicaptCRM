@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 
-const STORAGE_KEY = "leadflow-theme";
+const STORAGE_KEY = "clicapt-theme";
 const THEMES = ["light", "dark", "system"];
 
 function getSystemTheme() {

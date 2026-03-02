@@ -91,7 +91,7 @@ async function autoProvision(auth0Id, email) {
     },
     {
       sql: `INSERT INTO pipeline_stages (id, organization_id, name, color, probability, position, is_won, is_lost) VALUES
-            (lower(hex(randomblob(16))), ?, 'Nuevo Lead',        '#3B82F6', 10,  1, 0, 0),
+            (lower(hex(randomblob(16))), ?, 'Nuevo Lead',        '#F97316', 10,  1, 0, 0),
             (lower(hex(randomblob(16))), ?, 'Contactado',        '#8B5CF6', 25,  2, 0, 0),
             (lower(hex(randomblob(16))), ?, 'Propuesta Enviada', '#F59E0B', 50,  3, 0, 0),
             (lower(hex(randomblob(16))), ?, 'Negociación',       '#F97316', 75,  4, 0, 0),

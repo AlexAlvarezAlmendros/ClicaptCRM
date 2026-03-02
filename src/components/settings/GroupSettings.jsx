@@ -9,7 +9,7 @@ import { useToast } from "../ui/Toast";
 import { Plus, Pencil, Trash2, FolderOpen, Users, Check, X } from "lucide-react";
 
 const GROUP_COLORS = [
-  "#3B82F6", // blue
+  "#F97316", // orange
   "#10B981", // green
   "#F59E0B", // amber
   "#EF4444", // red
@@ -30,13 +30,13 @@ export function GroupSettings() {
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ name: "", color: "#3B82F6", description: "" });
+  const [form, setForm] = useState({ name: "", color: "#F97316", description: "" });
   const [deleteId, setDeleteId] = useState(null);
 
   const groups = data || [];
 
   function resetForm() {
-    setForm({ name: "", color: "#3B82F6", description: "" });
+    setForm({ name: "", color: "#F97316", description: "" });
     setEditingId(null);
     setShowForm(false);
   }

@@ -1,11 +1,11 @@
 {
-  "name": "LeadFlow CRM",
-  "short_name": "LeadFlow",
+  "name": "CliCapt CRM",
+  "short_name": "CliCapt",
   "description": "CRM para gestión de contactos y oportunidades de venta",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F8FAFC",
-  "theme_color": "#3B82F6",
+  "theme_color": "#F97316",
   "icons": [
     {
       "src": "/favicon.svg",

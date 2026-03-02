@@ -17,16 +17,16 @@ export async function sendWelcomeEmail(to, userName) {
   await transporter.sendMail({
     from: FROM,
     to,
-    subject: "🎉 Bienvenido a LeadFlow CRM",
+    subject: "🎉 Bienvenido a CliCapt CRM",
     html: `
       <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #1E293B;">¡Hola, ${userName}!</h1>
         <p style="color: #475569; font-size: 16px;">
-          Tu cuenta en <strong>LeadFlow CRM</strong> está lista.
+          Tu cuenta en <strong>CliCapt CRM</strong> está lista.
           Tienes <strong>30 días de prueba gratuita</strong> con acceso a todas las funcionalidades.
         </p>
         <a href="${process.env.APP_URL}/dashboard"
-           style="display: inline-block; background: #3B82F6; color: white;
+           style="display: inline-block; background: #F97316; color: white;
                   padding: 12px 24px; border-radius: 8px; text-decoration: none;
                   font-weight: 600; margin-top: 16px;">
           Empezar ahora →
@@ -48,13 +48,13 @@ export async function sendTrialWarningEmail(to, userName, daysLeft) {
       <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #1E293B;">Hola, ${userName}</h1>
         <p style="color: #475569; font-size: 16px;">
-          Tu periodo de prueba en LeadFlow CRM finaliza en <strong>${daysLeft} días</strong>.
+          Tu periodo de prueba en CliCapt CRM finaliza en <strong>${daysLeft} días</strong>.
         </p>
         <p style="color: #475569; font-size: 16px;">
           Suscríbete para no perder acceso a tus datos y seguir gestionando tus oportunidades.
         </p>
         <a href="${process.env.APP_URL}/configuracion/suscripcion"
-           style="display: inline-block; background: #3B82F6; color: white;
+           style="display: inline-block; background: #F97316; color: white;
                   padding: 12px 24px; border-radius: 8px; text-decoration: none;
                   font-weight: 600; margin-top: 16px;">
           Ver planes de suscripción →
@@ -79,7 +79,7 @@ export async function sendTaskReminderEmail(to, userName, tasks) {
         <p style="color: #475569; font-size: 16px;">Estas son tus tareas para hoy:</p>
         <ul style="color: #334155; font-size: 15px;">${taskListHtml}</ul>
         <a href="${process.env.APP_URL}/tareas"
-           style="display: inline-block; background: #3B82F6; color: white;
+           style="display: inline-block; background: #F97316; color: white;
                   padding: 12px 24px; border-radius: 8px; text-decoration: none;
                   font-weight: 600; margin-top: 16px;">
           Ver mis tareas →

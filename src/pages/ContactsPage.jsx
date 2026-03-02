@@ -24,7 +24,7 @@ import { useToast } from "../components/ui/Toast";
 import { CONTACT_STATUSES, ACTIVITY_TYPES } from "../lib/constants";
 
 const GROUP_COLORS = [
-  { value: "#3B82F6", label: "Azul" },
+  { value: "#F97316", label: "Naranja" },
   { value: "#10B981", label: "Verde" },
   { value: "#F59E0B", label: "Ámbar" },
   { value: "#EF4444", label: "Rojo" },
@@ -78,7 +78,7 @@ export default function ContactsPage() {
   const [exportOpen, setExportOpen] = useState(false);
   const [exportColumns, setExportColumns] = useState(() => new Set(EXPORT_COLUMNS.filter((c) => c.default).map((c) => c.key)));
   const [groupOpen, setGroupOpen] = useState(false);
-  const [groupForm, setGroupForm] = useState({ name: "", color: "#3B82F6", description: "" });
+  const [groupForm, setGroupForm] = useState({ name: "", color: "#F97316", description: "" });
   const [editingCell, setEditingCell] = useState(null);
   const [activityForm, setActivityForm] = useState(null);
 
@@ -217,7 +217,7 @@ export default function ContactsPage() {
     try {
       await createGroup.mutateAsync(groupForm);
       addToast({ type: "success", message: "Grupo creado" });
-      setGroupForm({ name: "", color: "#3B82F6", description: "" });
+      setGroupForm({ name: "", color: "#F97316", description: "" });
       setGroupOpen(false);
     } catch (err) {
       addToast({ type: "error", message: err.message || "Error al crear grupo" });
@@ -555,7 +555,7 @@ export default function ContactsPage() {
       {/* Group Creation Drawer */}
       <Drawer
         isOpen={groupOpen}
-        onClose={() => { setGroupOpen(false); setGroupForm({ name: "", color: "#3B82F6", description: "" }); }}
+        onClose={() => { setGroupOpen(false); setGroupForm({ name: "", color: "#F97316", description: "" }); }}
         title="Nuevo grupo"
         width="380px"
       >
@@ -604,7 +604,7 @@ export default function ContactsPage() {
           />
 
           <div style={{ display: "flex", gap: "var(--space-3)", justifyContent: "flex-end", paddingTop: "var(--space-4)", borderTop: "1px solid var(--border-default)" }}>
-            <Button type="button" variant="secondary" onClick={() => { setGroupOpen(false); setGroupForm({ name: "", color: "#3B82F6", description: "" }); }}>
+            <Button type="button" variant="secondary" onClick={() => { setGroupOpen(false); setGroupForm({ name: "", color: "#F97316", description: "" }); }}>>
               Cancelar
             </Button>
             <Button type="submit" isLoading={createGroup.isPending} disabled={!groupForm.name.trim()}>

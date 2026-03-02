@@ -47,7 +47,7 @@ export default async function handler(req, res) {
                     SET name = ?, color = ?, probability = ?, position = ?, is_won = ?, is_lost = ?
                     WHERE id = ? AND organization_id = ?`,
               args: [
-                stage.name, stage.color || "#3B82F6", stage.probability ?? 0,
+                stage.name, stage.color || "#F97316", stage.probability ?? 0,
                 stage.position, stage.is_won ? 1 : 0, stage.is_lost ? 1 : 0,
                 stage.id, tenant.orgId,
               ],

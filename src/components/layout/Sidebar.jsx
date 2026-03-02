@@ -31,7 +31,7 @@ export function Sidebar() {
         <div className="sidebar__logo-icon">
           <Zap size={18} />
         </div>
-        {sidebarOpen && <span className="sidebar__logo-text">LeadFlow</span>}
+        {sidebarOpen && <span className="sidebar__logo-text">CliCapt</span>}
       </div>
 
       {/* Navigation */}
