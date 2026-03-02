@@ -366,7 +366,7 @@ export function CSVImportWizard({ isOpen, onClose }) {
         token
       );
 
-      setImportResult(result.data);
+      setImportResult(result);
       queryClient.invalidateQueries({ queryKey: ["contacts"] });
       addToast({
         type: "success",

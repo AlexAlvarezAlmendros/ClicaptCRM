@@ -17,8 +17,8 @@ export function useStripeCheckout() {
     },
     onSuccess: (data) => {
       // Redirect to Stripe Checkout
-      if (data?.data?.url) {
-        window.location.href = data.data.url;
+      if (data?.url) {
+        window.location.href = data.url;
       }
     },
   });
@@ -38,8 +38,8 @@ export function useStripePortal() {
       return apiClient.post("/api/stripe/portal", {}, token);
     },
     onSuccess: (data) => {
-      if (data?.data?.url) {
-        window.location.href = data.data.url;
+      if (data?.url) {
+        window.location.href = data.url;
       }
     },
   });

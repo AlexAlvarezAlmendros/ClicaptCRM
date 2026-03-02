@@ -77,9 +77,9 @@ export default function ContactDetailPage() {
     );
   }
 
-  const activities = activitiesData?.data || [];
-  const deals = dealsData?.data || [];
-  const tasks = tasksData?.data || [];
+  const activities = activitiesData || [];
+  const deals = dealsData || [];
+  const tasks = tasksData || [];
   const status = STATUS_BADGES[contact.status] || STATUS_BADGES.new;
   const sourceLbl = CONTACT_SOURCES.find((s) => s.value === contact.source)?.label;
 

@@ -37,7 +37,7 @@ export default function DashboardPage() {
     );
   }
 
-  const stats = data?.data || {};
+  const stats = data || {};
   const activities = stats.recentActivity || [];
   const todayTasks = stats.todayTasks || [];
   const dealsByStage = stats.dealsByStage || [];

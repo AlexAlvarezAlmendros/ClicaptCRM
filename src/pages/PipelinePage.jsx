@@ -31,8 +31,8 @@ export default function PipelinePage() {
 
   const isLoading = dealsLoading || stagesLoading;
 
-  const deals = dealsData?.data || [];
-  const stages = stagesData?.data || [];
+  const deals = dealsData || [];
+  const stages = stagesData || [];
 
   // Summary metrics
   const totalDeals = deals.length;

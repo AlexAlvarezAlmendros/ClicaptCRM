@@ -45,7 +45,7 @@ export function TaskForm({ isOpen, onClose, task = null }) {
 
   const contacts = [
     { value: "", label: "— Sin contacto —" },
-    ...(contactsData?.data?.contacts || contactsData?.data || []).map((c) => ({
+    ...(contactsData?.contacts || []).map((c) => ({
       value: c.id,
       label: `${c.name}${c.surname ? ` ${c.surname}` : ""}`,
     })),

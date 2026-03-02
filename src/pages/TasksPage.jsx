@@ -33,7 +33,7 @@ export default function TasksPage() {
   const [editTask, setEditTask] = useState(null);
   const { canWrite } = useSubscriptionGate();
 
-  const tasks = data?.data || [];
+  const tasks = data || [];
 
   function handleToggle(task) {
     if (!task.is_completed) {

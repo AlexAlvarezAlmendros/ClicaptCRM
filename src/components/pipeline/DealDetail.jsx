@@ -39,8 +39,8 @@ export function DealDetail({ deal, isOpen, onClose, onEdit, onDelete }) {
 
   if (!deal) return null;
 
-  const activities = activitiesData?.data || [];
-  const tasks = tasksData?.data || [];
+  const activities = activitiesData || [];
+  const tasks = tasksData || [];
 
   async function handleAddActivity(e) {
     e.preventDefault();

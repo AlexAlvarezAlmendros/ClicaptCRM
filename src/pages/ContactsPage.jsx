@@ -81,8 +81,8 @@ export default function ContactsPage() {
 
   const { data, isLoading } = useContacts(queryParams);
 
-  const contacts = data?.data?.contacts || data?.data || [];
-  const pagination = data?.data?.pagination || null;
+  const contacts = data?.contacts || [];
+  const pagination = data?.pagination || null;
   const totalCount = pagination?.total || contacts.length;
   const totalPages = pagination?.totalPages || 1;
   const page = filters.page;
