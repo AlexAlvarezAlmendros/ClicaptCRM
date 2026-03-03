@@ -12,7 +12,6 @@ const FALLBACK_STATUSES = [
 
 export function useContactStatuses() {
   const getToken = useToken();
-
   return useQuery({
     queryKey: ["contact-statuses"],
     queryFn: async () => {
@@ -27,11 +26,38 @@ export function useContactStatuses() {
 export function useUpdateContactStatuses() {
   const getToken = useToken();
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (statuses) => {
       const token = await getToken();
       return apiClient.put("/api/contact-statuses", { statuses }, token);
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(["contact-statuses"], data);
+    },
+  });
+}
+
+export function useCreateContactStatus() {
+  const getToken = useToken();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ name, color }) => {
+      const token = await getToken();
+      return apiClient.post("/api/contact-statuses", { name, color }, token);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contact-statuses"] });
+    },
+  });
+}
+
+export function useDeleteContactStatus() {
+  const getToken = useToken();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (value) => {
+      const token = await getToken();
+      return apiClient.delete(`/api/contact-statuses`, token, { value });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contact-statuses"] });

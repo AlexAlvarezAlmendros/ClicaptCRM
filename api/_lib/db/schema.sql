@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS contacts (
     postal_code       TEXT,
     country           TEXT DEFAULT 'España',
     source            TEXT DEFAULT 'other' CHECK (source IN ('web', 'referral', 'cold_call', 'event', 'linkedin', 'import', 'other')),
-    status            TEXT DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'qualified', 'customer', 'lost')),
+    status            TEXT DEFAULT 'new',
     notes             TEXT,
     group_id          TEXT REFERENCES contact_groups(id) ON DELETE SET NULL,
     assigned_to       TEXT REFERENCES users(id),

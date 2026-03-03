@@ -66,8 +66,8 @@ class ApiClient {
     return this.request("PATCH", path, body, token);
   }
 
-  delete(path, token) {
-    return this.request("DELETE", path, null, token);
+  delete(path, token, body = null) {
+    return this.request("DELETE", path, body, token);
   }
 }
 
