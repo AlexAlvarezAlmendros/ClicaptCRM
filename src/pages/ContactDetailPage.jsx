@@ -50,6 +50,8 @@ export default function ContactDetailPage() {
   const [activityType, setActivityType] = useState("note");
   const [activityDesc, setActivityDesc] = useState("");
 
+  const { data: contactStatuses = [] } = useContactStatuses();
+
   if (isLoading) {
     return (
       <div style={{ display: "flex", justifyContent: "center", padding: "var(--space-12)" }}>
@@ -74,7 +76,6 @@ export default function ContactDetailPage() {
   const activities = activitiesData || [];
   const deals = dealsData || [];
   const tasks = tasksData || [];
-  const { data: contactStatuses = [] } = useContactStatuses();
   const sourceLbl = CONTACT_SOURCES.find((s) => s.value === contact.source)?.label;
 
   async function handleDelete() {
