@@ -19,17 +19,11 @@ import {
   CheckCircle2, MessageSquare, PhoneCall, CalendarClock,
 } from "lucide-react";
 import { formatDate, formatRelativeTime, formatCurrency } from "../lib/formatters";
-import { CONTACT_SOURCES, CONTACT_STATUSES, ACTIVITY_TYPES } from "../lib/constants";
+import { CONTACT_SOURCES, ACTIVITY_TYPES } from "../lib/constants";
+import { useContactStatuses, findStatus } from "../hooks/useContactStatuses";
+import { StatusBadge } from "../components/contacts/StatusBadge";
 import { Textarea } from "../components/ui/Input";
 import { Select } from "../components/ui/Select";
-
-const STATUS_BADGES = {
-  new: { label: "Nuevo", variant: "primary" },
-  contacted: { label: "Contactado", variant: "neutral" },
-  qualified: { label: "Cualificado", variant: "warning" },
-  customer: { label: "Cliente", variant: "success" },
-  lost: { label: "Perdido", variant: "danger" },
-};
 
 const ACTIVITY_ICONS = {
   call: PhoneCall,
@@ -80,7 +74,7 @@ export default function ContactDetailPage() {
   const activities = activitiesData || [];
   const deals = dealsData || [];
   const tasks = tasksData || [];
-  const status = STATUS_BADGES[contact.status] || STATUS_BADGES.new;
+  const { data: contactStatuses = [] } = useContactStatuses();
   const sourceLbl = CONTACT_SOURCES.find((s) => s.value === contact.source)?.label;
 
   async function handleDelete() {
@@ -173,7 +167,7 @@ export default function ContactDetailPage() {
             </Card.Header>
             <Card.Body>
               <div style={{ marginBottom: "var(--space-3)" }}>
-                <Badge variant={status.variant} dot>{status.label}</Badge>
+                <StatusBadge value={contact.status} statuses={contactStatuses} dot />
               </div>
               {contact.tags?.length > 0 && (
                 <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>

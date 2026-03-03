@@ -99,6 +99,15 @@ async function autoProvision(auth0Id, email) {
             (lower(hex(randomblob(16))), ?, 'Perdido',           '#EF4444', 0,   6, 0, 1)`,
       args: [orgId, orgId, orgId, orgId, orgId, orgId],
     },
+    {
+      sql: `INSERT INTO contact_statuses (id, organization_id, value, name, color, position) VALUES
+            (lower(hex(randomblob(16))), ?, 'new',       'Nuevo',       '#3B82F6', 1),
+            (lower(hex(randomblob(16))), ?, 'contacted', 'Contactado',  '#F59E0B', 2),
+            (lower(hex(randomblob(16))), ?, 'qualified', 'Cualificado', '#8B5CF6', 3),
+            (lower(hex(randomblob(16))), ?, 'customer',  'Cliente',     '#10B981', 4),
+            (lower(hex(randomblob(16))), ?, 'lost',      'Perdido',     '#EF4444', 5)`,
+      args: [orgId, orgId, orgId, orgId, orgId],
+    },
   ];
 
   await db.batch(batch);

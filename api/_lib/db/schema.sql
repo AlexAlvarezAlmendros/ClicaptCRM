@@ -108,6 +108,21 @@ CREATE TABLE IF NOT EXISTS contact_groups (
 CREATE INDEX IF NOT EXISTS idx_contact_groups_org ON contact_groups(organization_id);
 
 -- ─────────────────────────────────────────────
+-- ESTADOS DE CONTACTO (personalizables por org)
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS contact_statuses (
+    id                TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    organization_id   TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+    value             TEXT NOT NULL,
+    name              TEXT NOT NULL,
+    color             TEXT NOT NULL DEFAULT '#6B7280',
+    position          INTEGER NOT NULL DEFAULT 0,
+    UNIQUE(organization_id, value)
+);
+
+CREATE INDEX IF NOT EXISTS idx_contact_statuses_org ON contact_statuses(organization_id);
+
+-- ─────────────────────────────────────────────
 -- TAGS Y RELACIÓN CON CONTACTOS
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS tags (

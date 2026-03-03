@@ -4,9 +4,10 @@ import { Select } from "../ui/Select";
 import { Button } from "../ui/Button";
 import { Drawer } from "../ui/Drawer";
 import { TagBadge } from "./TagBadge";
-import { CONTACT_SOURCES, CONTACT_STATUSES } from "../../lib/constants";
+import { CONTACT_SOURCES } from "../../lib/constants";
 import { useCreateContact, useUpdateContact } from "../../hooks/useContacts";
 import { useGroups } from "../../hooks/useGroups";
+import { useContactStatuses } from "../../hooks/useContactStatuses";
 import { useToast } from "../ui/Toast";
 import { Plus } from "lucide-react";
 
@@ -38,6 +39,8 @@ export function ContactForm({ isOpen, onClose, contact = null }) {
   const createContact = useCreateContact();
   const updateContact = useUpdateContact();
   const { data: groupsData } = useGroups();
+  const { data: contactStatuses = [] } = useContactStatuses();
+  const statusOptions = contactStatuses.map((s) => ({ value: s.value, label: s.name }));
   const groups = groupsData || [];
   const groupOptions = groups.map((g) => ({ value: String(g.id), label: g.name }));
   const { addToast } = useToast();
@@ -248,7 +251,7 @@ export function ContactForm({ isOpen, onClose, contact = null }) {
               name="status"
               value={form.status}
               onChange={handleChange}
-              options={CONTACT_STATUSES}
+              options={statusOptions}
             />
           )}
         </div>

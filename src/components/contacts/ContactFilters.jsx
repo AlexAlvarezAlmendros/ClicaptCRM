@@ -1,11 +1,14 @@
 import { Select } from "../ui/Select";
 import { Button } from "../ui/Button";
-import { CONTACT_SOURCES, CONTACT_STATUSES } from "../../lib/constants";
+import { CONTACT_SOURCES } from "../../lib/constants";
 import { useGroups } from "../../hooks/useGroups";
+import { useContactStatuses } from "../../hooks/useContactStatuses";
 import { RotateCcw } from "lucide-react";
 
 export function ContactFilters({ filters, onChange, onReset }) {
   const { data: groupsData } = useGroups();
+  const { data: contactStatuses = [] } = useContactStatuses();
+  const statusOptions = contactStatuses.map((s) => ({ value: s.value, label: s.name }));
   const groups = groupsData || [];
   const groupOptions = groups.map((g) => ({ value: String(g.id), label: g.name }));
   const hasFilters = filters.status || filters.source || filters.group_id;
@@ -25,7 +28,7 @@ export function ContactFilters({ filters, onChange, onReset }) {
           name="status"
           value={filters.status}
           onChange={(e) => onChange({ status: e.target.value })}
-          options={CONTACT_STATUSES}
+          options={statusOptions}
           placeholder="Todos"
         />
       </div>

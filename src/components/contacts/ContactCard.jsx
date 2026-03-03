@@ -1,17 +1,8 @@
-import { Badge } from "../ui/Badge";
 import { Phone, Mail, Building2 } from "lucide-react";
 import { TagBadge } from "./TagBadge";
+import { StatusBadge } from "./StatusBadge";
 
-const STATUS_BADGES = {
-  new: { label: "Nuevo", variant: "primary" },
-  contacted: { label: "Contactado", variant: "neutral" },
-  qualified: { label: "Cualificado", variant: "warning" },
-  customer: { label: "Cliente", variant: "success" },
-  lost: { label: "Perdido", variant: "danger" },
-};
-
-export function ContactCard({ contact, onClick }) {
-  const status = STATUS_BADGES[contact.status] || STATUS_BADGES.new;
+export function ContactCard({ contact, statuses = [], onClick }) {
 
   return (
     <div
@@ -49,7 +40,7 @@ export function ContactCard({ contact, onClick }) {
             </p>
           )}
         </div>
-        <Badge variant={status.variant} dot>{status.label}</Badge>
+        <StatusBadge value={contact.status} statuses={statuses} dot />
       </div>
 
       {/* Contact info */}

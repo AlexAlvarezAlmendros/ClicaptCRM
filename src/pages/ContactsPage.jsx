@@ -21,7 +21,9 @@ import { SkeletonTable } from "../components/ui/Skeleton";
 import { Drawer } from "../components/ui/Drawer";
 import { useCreateGroup } from "../hooks/useGroups";
 import { useToast } from "../components/ui/Toast";
-import { CONTACT_STATUSES, ACTIVITY_TYPES } from "../lib/constants";
+import { ACTIVITY_TYPES } from "../lib/constants";
+import { useContactStatuses, findStatus } from "../hooks/useContactStatuses";
+import { StatusBadge } from "../components/contacts/StatusBadge";
 
 const GROUP_COLORS = [
   { value: "#F97316", label: "Naranja" },
@@ -57,14 +59,6 @@ const EXPORT_COLUMNS = [
   { key: "created_at", label: "Fecha creación",  default: false },
 ];
 
-const STATUS_BADGES = {
-  new: { label: "Nuevo", variant: "primary" },
-  contacted: { label: "Contactado", variant: "neutral" },
-  qualified: { label: "Cualificado", variant: "warning" },
-  customer: { label: "Cliente", variant: "success" },
-  lost: { label: "Perdido", variant: "danger" },
-};
-
 export default function ContactsPage() {
   const filters = useFiltersStore((s) => s.contacts);
   const setFilters = useFiltersStore((s) => s.setContactFilters);
@@ -91,6 +85,7 @@ export default function ContactsPage() {
   const updateContact = useUpdateContact();
   const createActivity = useCreateActivity();
   const { addToast } = useToast();
+  const { data: contactStatuses = [] } = useContactStatuses();
 
   // Build query params from store + debounced search
   const queryParams = {
@@ -321,6 +316,7 @@ export default function ContactsPage() {
             <ContactCard
               key={contact.id}
               contact={contact}
+              statuses={contactStatuses}
               onClick={() => navigate(`/contactos/${contact.id}`)}
             />
           ))}
@@ -341,7 +337,8 @@ export default function ContactsPage() {
             </Table.Head>
             <Table.Body>
               {contacts.map((contact) => {
-                const status = STATUS_BADGES[contact.status] || STATUS_BADGES.new;
+                const statusDef = findStatus(contactStatuses, contact.status);
+                const statusColor = statusDef.color || "#6B7280";
                 return (
                   <Table.Row
                     key={contact.id}
@@ -404,9 +401,9 @@ export default function ContactsPage() {
                         style={{
                           appearance: "none",
                           WebkitAppearance: "none",
-                          background: `var(--color-${status.variant === "primary" ? "primary" : status.variant === "success" ? "success" : status.variant === "warning" ? "warning" : status.variant === "danger" ? "danger" : "neutral"}-100)`,
-                          color: `var(--color-${status.variant === "primary" ? "primary" : status.variant === "success" ? "success" : status.variant === "warning" ? "warning" : status.variant === "danger" ? "danger" : "neutral"}-700)`,
-                          border: "none",
+                          background: statusColor + "1a",
+                          color: statusColor,
+                          border: `1px solid ${statusColor}33`,
                           borderRadius: "var(--radius-full)",
                           padding: "4px 12px",
                           fontSize: "var(--text-xs)",
@@ -419,8 +416,8 @@ export default function ContactsPage() {
                           paddingRight: "24px",
                         }}
                       >
-                        {CONTACT_STATUSES.map((s) => (
-                          <option key={s.value} value={s.value}>{s.label}</option>
+                        {contactStatuses.map((s) => (
+                          <option key={s.value} value={s.value}>{s.name}</option>
                         ))}
                       </select>
                     </Table.Td>
