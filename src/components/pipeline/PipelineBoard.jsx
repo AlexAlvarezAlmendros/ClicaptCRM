@@ -17,6 +17,10 @@ import "./PipelineBoard.css";
 export function PipelineBoard({ stages, deals, onDealClick, onAddDeal }) {
   const moveDealStage = useMoveDealStage();
   const [activeDeal, setActiveDeal] = useState(null);
+  // Local optimistic copy — updated instantly on drag end before API responds
+  const [localDeals, setLocalDeals] = useState(null);
+
+  const displayDeals = localDeals ?? deals;
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -29,7 +33,7 @@ export function PipelineBoard({ stages, deals, onDealClick, onAddDeal }) {
     for (const stage of stages) {
       grouped[stage.id] = [];
     }
-    for (const deal of deals) {
+    for (const deal of displayDeals) {
       if (grouped[deal.stage_id]) {
         grouped[deal.stage_id].push(deal);
       }
@@ -39,7 +43,7 @@ export function PipelineBoard({ stages, deals, onDealClick, onAddDeal }) {
       grouped[stageId].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
     }
     return grouped;
-  }, [stages, deals]);
+  }, [stages, displayDeals]);
 
   const findDealStage = useCallback(
     (dealId) => {
@@ -96,12 +100,19 @@ export function PipelineBoard({ stages, deals, onDealClick, onAddDeal }) {
       if (oldIndex === targetPosition) return;
     }
 
-    // Call API to move
-    moveDealStage.mutate({
-      id: activeDealId,
-      stageId: targetStageId,
-      position: targetPosition,
+    // Optimistic local update — move deal instantly in UI
+    setLocalDeals((prev) => {
+      const base = prev ?? deals;
+      return base.map((d) =>
+        d.id === activeDealId ? { ...d, stage_id: targetStageId, position: targetPosition } : d
+      );
     });
+
+    // Fire API; on settle (success or error) clear local copy so server state takes over
+    moveDealStage.mutate(
+      { id: activeDealId, stageId: targetStageId, position: targetPosition },
+      { onSettled: () => setLocalDeals(null) },
+    );
   }
 
   function handleDragCancel() {

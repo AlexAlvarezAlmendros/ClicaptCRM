@@ -68,7 +68,34 @@ export function useMoveDealStage() {
       const token = await getToken();
       return apiClient.patch(`/api/deals/${id}`, { stage_id: stageId, position }, token);
     },
-    onSuccess: () => {
+    onMutate: async ({ id, stageId, position }) => {
+      // Cancel any outgoing refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: ["deals"] });
+
+      // Snapshot all matching cache entries
+      const snapshots = [];
+      queryClient.getQueriesData({ queryKey: ["deals"] }).forEach(([queryKey, data]) => {
+        if (!Array.isArray(data)) return;
+        snapshots.push({ queryKey, data });
+        queryClient.setQueryData(queryKey, (old) => {
+          if (!Array.isArray(old)) return old;
+          return old.map((deal) =>
+            deal.id === id
+              ? { ...deal, stage_id: stageId, position }
+              : deal
+          );
+        });
+      });
+
+      return { snapshots };
+    },
+    onError: (_err, _vars, context) => {
+      // Rollback on failure
+      context?.snapshots?.forEach(({ queryKey, data }) => {
+        queryClient.setQueryData(queryKey, data);
+      });
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["deals"] });
     },
   });
