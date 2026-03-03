@@ -24,7 +24,7 @@ export async function resolveTenant(authUserOrId) {
 
     if (result.rows.length === 0) {
       // ── Stub mode for local development ──
-      if (auth0Id === "auth0|dev_user_001") {
+      if (auth0Id === "dev_user_001") {
         console.warn("[tenant] Running in STUB mode — returning dev tenant");
         return {
           userId: "dev_user_001",
