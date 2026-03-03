@@ -601,7 +601,7 @@ export default function ContactsPage() {
           />
 
           <div style={{ display: "flex", gap: "var(--space-3)", justifyContent: "flex-end", paddingTop: "var(--space-4)", borderTop: "1px solid var(--border-default)" }}>
-            <Button type="button" variant="secondary" onClick={() => { setGroupOpen(false); setGroupForm({ name: "", color: "#F97316", description: "" }); }}>>
+            <Button type="button" variant="secondary" onClick={() => { setGroupOpen(false); setGroupForm({ name: "", color: "#F97316", description: "" }); }}>
               Cancelar
             </Button>
             <Button type="submit" isLoading={createGroup.isPending} disabled={!groupForm.name.trim()}>
