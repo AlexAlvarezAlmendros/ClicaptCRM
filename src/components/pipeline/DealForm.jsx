@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Drawer } from "../ui/Drawer";
 import { Input, Textarea } from "../ui/Input";
 import { Select } from "../ui/Select";
+import { SearchableSelect } from "../ui/SearchableSelect";
 import { Button } from "../ui/Button";
 import { useToast } from "../ui/Toast";
 import { useCreateDeal, useUpdateDeal } from "../../hooks/useDeals";
@@ -117,14 +118,17 @@ export function DealForm({ isOpen, onClose, deal = null, defaultStageId = "" }) 
           placeholder="Ej: Proyecto web corporativa"
         />
 
-        <Select
+        <SearchableSelect
           label="Contacto *"
-          name="contact_id"
           value={form.contact_id}
-          onChange={handleChange}
+          onChange={(val) => {
+            setForm((f) => ({ ...f, contact_id: val }));
+            if (errors.contact_id) setErrors((prev) => ({ ...prev, contact_id: undefined }));
+          }}
           error={errors.contact_id}
-          placeholder="Seleccionar contacto"
+          placeholder="Buscar contacto..."
           options={contacts}
+          required
         />
 
         <Select

@@ -197,7 +197,7 @@ export function DealDetail({ deal, isOpen, onClose, onEdit, onDelete }) {
                 label="Tipo"
                 value={activityType}
                 onChange={(e) => setActivityType(e.target.value)}
-                options={Object.entries(ACTIVITY_TYPES).map(([k, v]) => ({ value: k, label: v }))}
+                options={ACTIVITY_TYPES}
               />
               <Textarea
                 label="Descripción"
@@ -255,7 +255,7 @@ export function DealDetail({ deal, isOpen, onClose, onEdit, onDelete }) {
                           {act.description}
                         </p>
                         <span style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>
-                          {ACTIVITY_TYPES[act.type] || act.type} · {formatRelativeTime(act.created_at)}
+                          {ACTIVITY_TYPES.find((t) => t.value === act.type)?.label || act.type} · {formatRelativeTime(act.created_at)}
                         </span>
                       </div>
                     </div>
