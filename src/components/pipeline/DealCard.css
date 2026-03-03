@@ -6,6 +6,8 @@
   cursor: grab;
   transition: all var(--transition-fast);
   user-select: none;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .deal-card:hover {
@@ -32,12 +34,18 @@
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   margin-bottom: var(--space-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .deal-card__company {
   font-size: var(--text-xs);
   color: var(--text-secondary);
   margin-bottom: var(--space-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .deal-card__footer {
