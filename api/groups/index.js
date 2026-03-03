@@ -24,14 +24,18 @@ async function handler(req, res) {
                 (SELECT COUNT(*)
                  FROM deals d
                  JOIN contacts c2 ON d.contact_id = c2.id
+                 JOIN pipeline_stages ps ON d.stage_id = ps.id
                  WHERE c2.group_id = g.id AND c2.is_deleted = 0
-                   AND d.is_won = 0 AND d.is_lost = 0
+                   AND d.is_archived = 0
+                   AND ps.is_won = 0 AND ps.is_lost = 0
                 ) AS active_deals,
                 (SELECT COALESCE(SUM(d2.value), 0)
                  FROM deals d2
                  JOIN contacts c3 ON d2.contact_id = c3.id
+                 JOIN pipeline_stages ps2 ON d2.stage_id = ps2.id
                  WHERE c3.group_id = g.id AND c3.is_deleted = 0
-                   AND d2.is_won = 0 AND d2.is_lost = 0
+                   AND d2.is_archived = 0
+                   AND ps2.is_won = 0 AND ps2.is_lost = 0
                 ) AS pipeline_value,
                 (SELECT COUNT(*)
                  FROM tasks t
