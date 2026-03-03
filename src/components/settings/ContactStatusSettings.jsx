@@ -108,11 +108,11 @@ export function ContactStatusSettings() {
           <div>
             <Card.Title>Estados de contacto</Card.Title>
             <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", marginTop: "var(--space-1)" }}>
-              Personaliza los nombres, colores y orden. Los contactos con un estado eliminado mantendrÃ¡n su valor hasta que lo cambies.
+              Personaliza los nombres, colores y orden. Los contactos con un estado eliminado mantendrán su valor hasta que lo cambies.
             </p>
           </div>
           <Button size="sm" variant="secondary" leftIcon={Plus} onClick={() => setShowAdd((v) => !v)}>
-            AÃ±adir estado
+            Añadir estado
           </Button>
         </div>
       </Card.Header>
