@@ -5,6 +5,7 @@ import { ErrorBoundary } from "../components/ui/ErrorBoundary";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import CallbackPage from "../pages/CallbackPage";
+import GoogleCallbackPage from "../pages/GoogleCallbackPage";
 import DashboardPage from "../pages/DashboardPage";
 import ContactsPage from "../pages/ContactsPage";
 import ContactDetailPage from "../pages/ContactDetailPage";
@@ -22,6 +23,7 @@ export function AppRouter() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/callback" element={<CallbackPage />} />
+        <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
 
         {/* Protected routes with layout */}
         <Route

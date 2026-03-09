@@ -3,6 +3,7 @@ import { useLogin } from "@alexalvarez.dev/react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
+import { GoogleLoginButton } from "../components/ui/GoogleLoginButton";
 import { Zap } from "lucide-react";
 
 export default function LoginPage() {
@@ -105,6 +106,15 @@ export default function LoginPage() {
             {isLoading ? "Entrando…" : "Iniciar sesión"}
           </Button>
         </form>
+
+        {/* Divider */}
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", margin: "var(--space-4) 0 var(--space-2)" }}>
+          <hr style={{ flex: 1, border: "none", borderTop: "1px solid var(--border-primary)" }} />
+          <span className="text-caption" style={{ color: "var(--text-tertiary)", whiteSpace: "nowrap" }}>O continúa con</span>
+          <hr style={{ flex: 1, border: "none", borderTop: "1px solid var(--border-primary)" }} />
+        </div>
+
+        <GoogleLoginButton />
 
         <p
           className="text-caption"
