@@ -48,6 +48,23 @@ export default async function handler(req, res) {
       return clean;
     });
 
+    // Pre-load existing emails scoped to this user + group to detect duplicates
+    // only within their own context, not across the entire organization.
+    const existingEmailsResult = await db.execute({
+      sql: `SELECT email FROM contacts
+            WHERE organization_id = ?
+              AND created_by = ?
+              AND is_deleted = 0
+              AND (? IS NULL AND group_id IS NULL OR group_id = ?)`,
+      args: [tenant.orgId, tenant.userId, group_id || null, group_id || null],
+    });
+    const existingEmails = new Set(
+      existingEmailsResult.rows
+        .map((r) => r.email)
+        .filter(Boolean)
+        .map((e) => e.toLowerCase())
+    );
+
     let imported = 0;
     let duplicates = 0;
     let invalid = 0;
@@ -60,12 +77,19 @@ export default async function handler(req, res) {
         continue;
       }
 
+      // Check duplicate against this user+group scope only
+      if (row.email && existingEmails.has(row.email.toLowerCase())) {
+        duplicates++;
+        errors.push({ row: row.name || row.email, error: "Contacto duplicado (email ya existe en este grupo)" });
+        continue;
+      }
+
       try {
         const status = VALID_STATUSES.includes(row.status) ? row.status : "new";
         const source = VALID_SOURCES.includes(row.source) ? row.source : "import";
 
-        const result = await db.execute({
-          sql: `INSERT OR IGNORE INTO contacts (id, organization_id, name, surname, email, phone,
+        await db.execute({
+          sql: `INSERT INTO contacts (id, organization_id, name, surname, email, phone,
                 company, job_title, website, source, status, notes, group_id, created_by, created_at, updated_at)
                 VALUES (lower(hex(randomblob(16))), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
           args: [
@@ -84,13 +108,9 @@ export default async function handler(req, res) {
             tenant.userId,
           ],
         });
-        // rowsAffected = 0 means duplicate was ignored
-        if (result.rowsAffected > 0) {
-          imported++;
-        } else {
-          duplicates++;
-          errors.push({ row: row.name || row.email, error: "Contacto duplicado (email ya existe)" });
-        }
+        imported++;
+        // Track newly imported email to catch intra-batch duplicates
+        if (row.email) existingEmails.add(row.email.toLowerCase());
       } catch (err) {
         invalid++;
         errors.push({ row: row.name || row.email, error: err.message });
