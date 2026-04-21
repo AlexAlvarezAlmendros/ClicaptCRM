@@ -30,6 +30,7 @@ const config = {
   app: {
     url: process.env.APP_URL || "http://localhost:5173",
     cronSecret: process.env.CRON_SECRET,
+    bypassSubscription: process.env.BYPASS_SUBSCRIPTION === "true",
   },
 };
 

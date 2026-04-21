@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     // New user → create organization + user + default pipeline stages
     const orgId = crypto.randomUUID().replace(/-/g, "");
     const userId = crypto.randomUUID().replace(/-/g, "");
-    const trialEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const trialEnd = new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000).toISOString();
     const userName = email.includes("@") ? email.split("@")[0] : email;
 
     const batch = [

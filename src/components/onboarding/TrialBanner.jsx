@@ -31,7 +31,8 @@ export function TrialBanner() {
     ? Math.max(0, Math.ceil((trialEndsAt - now) / (1000 * 60 * 60 * 24)))
     : 0;
 
-  const isExpired = status === "expired" || (status === "trialing" && daysRemaining <= 0);
+  const isExpired = import.meta.env.VITE_BYPASS_SUBSCRIPTION !== "true" &&
+    (status === "expired" || (status === "trialing" && daysRemaining <= 0));
   const isUrgent = daysRemaining <= 2;
   const isWarning = daysRemaining <= 7;
 

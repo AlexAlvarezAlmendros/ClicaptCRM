@@ -1,6 +1,7 @@
 // LeadFlow CRM — Middleware — Tenant resolution with auto-provisioning
 
 import db from "../db/client.js";
+import config from "../config.js";
 
 /**
  * Resolves the tenant (organization) from the authenticated user.
@@ -47,10 +48,10 @@ export async function resolveTenant(authUserOrId) {
     const user = result.rows[0];
 
     // Check if trial has expired or subscription is cancelled
+    // BYPASS_SUBSCRIPTION=true disables all access restrictions temporarily
     const isExpired =
-      user.subscription_status === "expired" ||
-      (user.subscription_status === "trialing" &&
-        new Date(user.trial_ends_at) < new Date());
+      !config.app.bypassSubscription &&
+      user.subscription_status === "expired";
 
     return {
       userId: user.user_id,
@@ -75,7 +76,7 @@ export async function resolveTenant(authUserOrId) {
 async function autoProvision(auth0Id, email) {
   const orgId = crypto.randomUUID().replace(/-/g, "");
   const userId = crypto.randomUUID().replace(/-/g, "");
-  const trialEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  const trialEnd = new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000).toISOString();
   const userName = email.split("@")[0];
 
   const batch = [

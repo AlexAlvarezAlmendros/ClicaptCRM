@@ -36,8 +36,9 @@ export function SubscriptionGateProvider({ children }) {
     }
 
     const isExpired =
-      subscriptionStatus === "expired" ||
-      (subscriptionStatus === "trialing" && trialDaysLeft !== null && trialDaysLeft <= 0);
+      import.meta.env.VITE_BYPASS_SUBSCRIPTION !== "true" &&
+      (subscriptionStatus === "expired" ||
+      (subscriptionStatus === "trialing" && trialDaysLeft !== null && trialDaysLeft <= 0));
 
     if (isExpired) {
       canWrite = false;
