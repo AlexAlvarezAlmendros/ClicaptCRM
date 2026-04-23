@@ -15,7 +15,7 @@ export const contactCreateSchema = z.object({
   postal_code: z.string().max(10).optional(),
   country: z.string().max(60).optional(),
   source: z.enum(["web", "referral", "cold_call", "event", "linkedin", "import", "other"]).optional(),
-  status: z.enum(["new", "contacted", "qualified", "customer", "lost"]).optional(),
+  status: z.string().max(50).optional(),
   notes: z.string().max(5000).optional(),
   group_id: z.union([z.string(), z.number()]).optional().nullable(),
   tags: z.array(z.string().max(50)).max(10).optional(),

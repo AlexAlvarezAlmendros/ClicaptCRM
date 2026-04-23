@@ -23,7 +23,8 @@ export default async function handler(req, res) {
         return sendSuccess(res, 200, contact);
       }
 
-      case "PUT": {
+      case "PUT":
+      case "PATCH": {
         const data = validate(contactUpdateSchema, req.body);
         const contact = await updateContact(tenant.orgId, id, data);
         return sendSuccess(res, 200, contact);
@@ -35,7 +36,7 @@ export default async function handler(req, res) {
       }
 
       default:
-        res.setHeader("Allow", "GET, PUT, DELETE");
+        res.setHeader("Allow", "GET, PUT, PATCH, DELETE");
         return sendError(res, 405, "METHOD_NOT_ALLOWED", "Método no permitido");
     }
   } catch (err) {

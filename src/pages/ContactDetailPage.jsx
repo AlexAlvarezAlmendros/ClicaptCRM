@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useContact, useDeleteContact } from "../hooks/useContacts";
+import { useContact, useDeleteContact, useUpdateContact } from "../hooks/useContacts";
 import { useActivities, useCreateActivity } from "../hooks/useActivities";
 import { useDeals } from "../hooks/useDeals";
 import { useTasks } from "../hooks/useTasks";
@@ -45,10 +45,14 @@ export default function ContactDetailPage() {
   const deleteContact = useDeleteContact();
   const createActivity = useCreateActivity();
 
+  const updateContact = useUpdateContact();
+
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [activityType, setActivityType] = useState("note");
   const [activityDesc, setActivityDesc] = useState("");
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [notesValue, setNotesValue] = useState("");
 
   const { data: contactStatuses = [] } = useContactStatuses();
 
@@ -181,12 +185,80 @@ export default function ContactDetailPage() {
                   ))}
                 </div>
               )}
-              {contact.notes && (
-                <div style={{ marginTop: "var(--space-4)", padding: "var(--space-3)", background: "var(--surface-secondary)", borderRadius: "var(--radius-md)" }}>
-                  <p style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginBottom: "var(--space-1)" }}>Notas</p>
-                  <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", whiteSpace: "pre-wrap" }}>{contact.notes}</p>
+              <div style={{ marginTop: "var(--space-4)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-1)" }}>
+                  <p style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>Notas</p>
+                  {!editingNotes && (
+                    <button
+                      onClick={() => { setNotesValue(contact.notes || ""); setEditingNotes(true); }}
+                      style={{ fontSize: "var(--text-xs)", color: "var(--color-primary-600)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                    >
+                      {contact.notes ? "Editar" : "Añadir"}
+                    </button>
+                  )}
                 </div>
-              )}
+                {editingNotes ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                    <textarea
+                      autoFocus
+                      value={notesValue}
+                      onChange={(e) => setNotesValue(e.target.value)}
+                      rows={4}
+                      placeholder="Escribe notas sobre este contacto..."
+                      style={{
+                        width: "100%",
+                        padding: "var(--space-2) var(--space-3)",
+                        fontSize: "var(--text-sm)",
+                        border: "1px solid var(--border-active)",
+                        borderRadius: "var(--radius-md)",
+                        background: "var(--bg-primary)",
+                        color: "var(--text-primary)",
+                        resize: "vertical",
+                        outline: "none",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                    <div style={{ display: "flex", gap: "var(--space-2)", justifyContent: "flex-end" }}>
+                      <Button size="sm" variant="ghost" onClick={() => setEditingNotes(false)}>Cancelar</Button>
+                      <Button
+                        size="sm"
+                        isLoading={updateContact.isPending}
+                        onClick={async () => {
+                          try {
+                            await updateContact.mutateAsync({ id: contact.id, data: { notes: notesValue || null } });
+                            addToast({ type: "success", message: "Notas guardadas" });
+                            setEditingNotes(false);
+                          } catch {
+                            addToast({ type: "error", message: "Error al guardar notas" });
+                          }
+                        }}
+                      >
+                        Guardar
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => { setNotesValue(contact.notes || ""); setEditingNotes(true); }}
+                    style={{
+                      padding: "var(--space-3)",
+                      background: "var(--surface-secondary)",
+                      borderRadius: "var(--radius-md)",
+                      cursor: "pointer",
+                      minHeight: 40,
+                      border: "1px dashed transparent",
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.borderColor = "var(--border-default)"}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = "transparent"}
+                  >
+                    {contact.notes ? (
+                      <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", whiteSpace: "pre-wrap" }}>{contact.notes}</p>
+                    ) : (
+                      <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)" }}>Clic para añadir notas...</p>
+                    )}
+                  </div>
+                )}
+              </div>
             </Card.Body>
           </Card>
         </div>
