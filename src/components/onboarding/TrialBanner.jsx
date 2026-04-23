@@ -1,4 +1,5 @@
 import { useOrganization } from "../../hooks/useOrganization";
+import { useProfile } from "../../hooks/useProfile";
 import { useNavigate } from "react-router-dom";
 import { Clock, AlertTriangle, X } from "lucide-react";
 import { useState } from "react";
@@ -13,10 +14,14 @@ import { useState } from "react";
  */
 export function TrialBanner() {
   const { data: org, isLoading } = useOrganization();
+  const { data: profile } = useProfile();
   const navigate = useNavigate();
   const [dismissed, setDismissed] = useState(false);
 
   if (isLoading || !org || dismissed) return null;
+
+  // Admins are not affected by plan restrictions — hide banner entirely
+  if (profile?.role === "admin") return null;
 
   // Only show for trialing or expired orgs
   const status = org.subscription_status;

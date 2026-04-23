@@ -46,7 +46,7 @@ export default async function handler(req, res) {
         const count = Number(memberCount.rows[0].count);
 
         const maxMembers = plan === "pro" ? 10 : plan === "basic" ? 3 : 1;
-        if (count >= maxMembers) {
+        if (tenant.role !== "admin" && count >= maxMembers) {
           return sendError(res, 403, "PLAN_LIMIT", `Tu plan permite un máximo de ${maxMembers} miembros. Actualiza para añadir más.`);
         }
 

@@ -49,8 +49,10 @@ export async function resolveTenant(authUserOrId) {
 
     // Check if trial has expired or subscription is cancelled
     // BYPASS_SUBSCRIPTION=true disables all access restrictions temporarily
+    // Admin users always have full access regardless of plan or subscription status
     const isExpired =
       !config.app.bypassSubscription &&
+      user.role !== "admin" &&
       user.subscription_status === "expired";
 
     return {

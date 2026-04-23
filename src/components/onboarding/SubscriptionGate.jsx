@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import { useOrganization } from "../../hooks/useOrganization";
+import { useProfile } from "../../hooks/useProfile";
 
 /**
  * SubscriptionGate context.
@@ -18,7 +19,11 @@ const SubscriptionGateContext = createContext({
 });
 
 export function SubscriptionGateProvider({ children }) {
-  const { data: org, isLoading } = useOrganization();
+  const { data: org, isLoading: orgLoading } = useOrganization();
+  const { data: profile, isLoading: profileLoading } = useProfile();
+  const isLoading = orgLoading || profileLoading;
+
+  const isAdmin = profile?.role === "admin";
 
   let canWrite = true;
   let gateReason = null;
@@ -35,19 +40,21 @@ export function SubscriptionGateProvider({ children }) {
       trialDaysLeft = Math.max(0, Math.ceil((trialEndsAt - new Date()) / (1000 * 60 * 60 * 24)));
     }
 
-    const isExpired =
-      import.meta.env.VITE_BYPASS_SUBSCRIPTION !== "true" &&
-      (subscriptionStatus === "expired" ||
-      (subscriptionStatus === "trialing" && trialDaysLeft !== null && trialDaysLeft <= 0));
+    if (!isAdmin) {
+      const isExpired =
+        import.meta.env.VITE_BYPASS_SUBSCRIPTION !== "true" &&
+        (subscriptionStatus === "expired" ||
+        (subscriptionStatus === "trialing" && trialDaysLeft !== null && trialDaysLeft <= 0));
 
-    if (isExpired) {
-      canWrite = false;
-      gateReason = "Tu periodo de prueba ha expirado. Elige un plan para continuar.";
-    }
+      if (isExpired) {
+        canWrite = false;
+        gateReason = "Tu periodo de prueba ha expirado. Elige un plan para continuar.";
+      }
 
-    if (subscriptionStatus === "cancelled") {
-      canWrite = false;
-      gateReason = "Tu suscripción está cancelada. Reactívala para continuar.";
+      if (subscriptionStatus === "cancelled") {
+        canWrite = false;
+        gateReason = "Tu suscripción está cancelada. Reactívala para continuar.";
+      }
     }
   }
 
