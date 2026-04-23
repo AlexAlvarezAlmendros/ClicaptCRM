@@ -225,7 +225,7 @@ export default function ContactDetailPage() {
                         isLoading={updateContact.isPending}
                         onClick={async () => {
                           try {
-                            await updateContact.mutateAsync({ id: contact.id, data: { notes: notesValue || null } });
+                            await updateContact.mutateAsync({ id: contact.id, data: { notes: notesValue } });
                             addToast({ type: "success", message: "Notas guardadas" });
                             setEditingNotes(false);
                           } catch {
