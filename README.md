@@ -1,258 +1,164 @@
+<div align="center">
+
 # CliCapt CRM
 
-CRM para pequeñas empresas y freelancers españoles. Gestión de contactos, pipeline de ventas (kanban), tareas y suscripción con Stripe.
+**Un CRM para el que trabaja solo: contactos, pipeline y tareas — y nada más, porque lo demás no se usa.**
 
-## Stack
+[![Demo](https://img.shields.io/badge/demo-clicapt--crm.vercel.app-4dd4ac)](https://clicapt-crm.vercel.app)
+[![React 18](https://img.shields.io/badge/React-18-61dafb)](package.json)
+[![Serverless](https://img.shields.io/badge/Vercel-Serverless%20Functions-000000)](api/)
+[![Turso](https://img.shields.io/badge/Turso-libSQL-4ff8d2)](scripts/migrate.js)
+[![Stripe](https://img.shields.io/badge/Stripe-suscripciones-635bff)](api/stripe/)
 
-| Capa | Tecnología |
-|------|-----------|
-| Frontend | React 18 + Vite, React Router v6, TanStack Query, Zustand, Tailwind CSS |
-| Backend | Vercel Serverless Functions (Node.js 20) |
-| Base de datos | Turso (libSQL) |
-| Autenticación | Auth0 (PKCE + JWT) |
-| Pagos | Stripe (Checkout + Portal) |
-| Email | Nodemailer + Gmail SMTP |
+[Qué resuelve](#qué-resuelve) ·
+[Lo que hace](#lo-que-hace) ·
+[Multi-tenant y suscripción](#multi-tenant-desde-la-primera-consulta) ·
+[Arrancarlo](#arrancarlo) ·
+[API](#la-api)
 
-## Funcionalidades
+</div>
 
-### Contactos
-- CRUD completo con validación Zod
-- Filtros por estado, fuente, etiquetas y búsqueda libre
-- Sistema de etiquetas con colores personalizados
-- Detalle de contacto con timeline de actividades y deals asociados
-- Importación y exportación CSV (con mapeo de cabeceras ES/EN)
+---
 
-### Pipeline de ventas (Kanban)
-- Tablero drag & drop con @dnd-kit
-- Etapas configurables (nombre, color, orden)
-- Formulario de deals con campos: valor, probabilidad, fecha estimada de cierre
-- Mover deals entre etapas arrastrando o editando
+## Qué resuelve
 
-### Tareas
-- Creación, edición y completar/descompletar
-- Filtros por estado (pendientes/completadas/todas) y prioridad
-- Asignación a usuarios del equipo
-- Vinculación opcional a contacto/deal
-- Recordatorios diarios por email (cron job)
+Un freelance o una empresa de tres personas no necesita Salesforce: necesita saber **a quién tiene
+que llamar mañana** y **qué presupuestos siguen vivos**. Los CRM grandes cobran por asiento y
+esconden esas dos respuestas detrás de quince pantallas de configuración; las hojas de cálculo no
+avisan de nada.
 
-### Dashboard
-- KPIs: contactos totales, deals activos, valor pipeline, tasa de conversión
-- Funnel de ventas por etapa
-- Timeline de actividad reciente
-- Tareas pendientes para hoy
+CliCapt es el punto intermedio: un CRM en español, con pipeline de arrastrar y soltar, tareas que
+te recuerdan solas por correo, e importación CSV que entiende cabeceras en español y en inglés
+—porque los contactos siempre llegan exportados de otro sitio.
 
-### Configuración
-- Perfil de usuario (nombre, email, avatar)
-- Datos de organización (nombre, teléfono, sitio web)
-- Gestión de equipo (invitar miembros, asignar roles admin/member)
-- Personalización de etapas del pipeline
-- Gestión de suscripción (ver plan, cambiar, portal Stripe)
+## Lo que hace
 
-### Onboarding y Trial
-- Banner de trial persistente con 3 niveles de severidad (info/warning/danger)
-- Tour de bienvenida de 4 pasos (con persistencia en localStorage)
-- Bloqueo de escritura cuando el trial expira o la suscripción se cancela
-- Componentes `SubscriptionGate`, `UpgradeWall`, `WriteGuard`
+**Contactos.** CRUD validado con Zod, filtros por estado, fuente, etiquetas y búsqueda libre;
+etiquetas con color; ficha con línea de tiempo de actividades y los deals asociados. Importación y
+exportación **CSV con mapeo de cabeceras ES/EN**.
 
-### Pagos (Stripe)
-- Checkout Sessions para planes Basic (14,99€/mes) y Pro (29,99€/mes)
-- Webhook para sincronizar estado de suscripción con la base de datos
-- Portal de facturación de Stripe (cambiar plan, cancelar, ver facturas)
+**Pipeline.** Tablero kanban con `@dnd-kit`: etapas configurables (nombre, color, orden) y deals
+con valor, probabilidad y fecha estimada de cierre. Se mueven arrastrando o editando.
 
-### Emails
-- Email de bienvenida al registrarse
-- Avisos de expiración de trial (7 días y 1 día antes)
-- Recordatorios diarios de tareas pendientes/vencidas
+**Tareas.** Prioridad, asignación a miembros del equipo, vínculo opcional a un contacto o a un
+deal, y **recordatorio diario por correo** de lo pendiente y lo vencido — un cron, no una
+notificación que hay que ir a mirar.
 
-## Requisitos previos
+**Dashboard.** Contactos, deals activos, valor del pipeline, tasa de conversión, embudo por etapa y
+lo que toca hoy. Nada de gráficas decorativas.
 
-- Node.js 20+
-- Cuenta en [Turso](https://turso.tech)
-- Cuenta en [Auth0](https://auth0.com)
-- Cuenta en [Stripe](https://stripe.com) (opcional en dev)
-- Cuenta en [Vercel](https://vercel.com) para despliegue
+**Configuración.** Perfil, organización, equipo con roles `admin`/`member`, etapas del pipeline y
+gestión de la suscripción.
 
-## Inicio rápido
+## Multi-tenant desde la primera consulta
+
+Cada organización ve solo lo suyo, y eso **no** depende de que la pantalla filtre bien: hay un
+middleware de tenant en `api/_lib/middleware/` por el que pasa toda petición autenticada, junto con
+la verificación del JWT de **Auth0** (PKCE en el SPA), el rate limit y la validación Zod. Una ruta
+nueva hereda las cuatro cosas por construcción.
+
+El ciclo comercial también está en el código, no en un documento:
+
+- **Trial** con banner de tres niveles de urgencia y avisos por correo a 7 días y a 1 día.
+- **Bloqueo de escritura** al expirar — `SubscriptionGate`, `UpgradeWall` y `WriteGuard`. Los datos
+  se siguen leyendo y exportando siempre: quien no paga no pierde su información.
+- **Stripe Checkout** para los planes Básico (14,99 €/mes) y Pro (29,99 €/mes), **webhook** que
+  sincroniza el estado de la suscripción con la base, y el **portal de facturación** de Stripe para
+  cambiar de plan o cancelar sin pasar por soporte.
+
+## Arrancarlo
 
 ```bash
-# 1. Instalar dependencias
 npm install
-
-# 2. Configurar variables de entorno
-cp .env.example .env
-# Edita .env con tus credenciales
-
-# 3. Ejecutar migraciones
-npm run migrate
-
-# 4. (Opcional) Datos de ejemplo
-npm run seed
-
-# 5. Iniciar dev server
-npm run dev
+cp .env.example .env     # Turso, Auth0, Stripe, Gmail
+npm run migrate          # esquema
+npm run seed             # datos de ejemplo (opcional)
+npm run dev              # http://localhost:5173
 ```
 
-La app estará disponible en `http://localhost:5173`.
+`VITE_AUTH0_BYPASS=true` salta la autenticación en local. Para levantar también las funciones
+serverless: `npm run dev:full` (necesita la CLI de Vercel).
 
-## Scripts
+| Comando | Qué hace |
+|---|---|
+| `npm test` | Vitest (unitarios) |
+| `npm run test:e2e` | Playwright |
+| `npm run lint` | ESLint 9, cero warnings admitidos |
+| `npm run build` | Bundle de producción |
 
-| Comando | Descripción |
-|---------|-------------|
-| `npm run dev` | Servidor de desarrollo (Vite) |
-| `npm run build` | Build de producción |
-| `npm run preview` | Preview del build |
-| `npm test` | Tests unitarios (Vitest) |
-| `npm run test:e2e` | Tests E2E (Playwright) |
-| `npm run migrate` | Ejecutar migraciones SQL |
-| `npm run seed` | Insertar datos de ejemplo |
-
-## Estructura del proyecto
-
-```
-├── api/                    # Serverless functions (Vercel)
-│   ├── _lib/               # Código compartido (no expuesto)
-│   │   ├── db/             # Cliente DB + schema
-│   │   ├── middleware/     # Auth, tenant, rate limit, validation
-│   │   ├── services/       # Lógica de negocio (stripe, email, contactos…)
-│   │   ├── utils/          # Helpers (response)
-│   │   └── validators/     # Schemas Zod
-│   ├── auth/               # Endpoints autenticación (me.js, callback)
-│   ├── contacts/           # CRUD + CSV import/export
-│   ├── deals/              # CRUD deals + stage updates
-│   ├── tasks/              # CRUD tareas + toggle completar
-│   ├── activities/         # Timeline actividades
-│   ├── dashboard/          # Estadísticas agregadas
-│   ├── organization/       # Gestión org + miembros
-│   ├── pipeline/           # Etapas pipeline (GET/PUT)
-│   ├── stripe/             # Checkout, webhook, portal
-│   ├── cron/               # trial-warnings, task-reminders
-│   ├── tags/               # Gestión etiquetas
-│   └── me.js               # Perfil de usuario
-├── src/                    # Frontend React
-│   ├── components/
-│   │   ├── ui/             # Button, Card, Input, Badge, Modal, Drawer, etc.
-│   │   ├── layout/         # AppLayout, Sidebar, Header, BottomNav
-│   │   ├── contacts/       # ContactForm, ContactCard, ContactFilters, TagBadge
-│   │   ├── pipeline/       # PipelineBoard, PipelineColumn, DealCard, DealForm
-│   │   ├── tasks/          # TaskForm
-│   │   ├── dashboard/      # KpiCard
-│   │   ├── settings/       # Profile, Organization, Team, Pipeline, Subscription
-│   │   └── onboarding/     # TrialBanner, WelcomeTour, SubscriptionGate
-│   ├── hooks/              # useContacts, useDeals, useTasks, useStripe, etc.
-│   ├── stores/             # filtersStore, uiStore (Zustand)
-│   ├── pages/              # 8 páginas: Dashboard, Contacts, Pipeline, Tasks, Settings…
-│   ├── routes/             # AppRouter (React Router v6)
-│   ├── lib/                # API client, formatters, auth0 config, constants
-│   ├── styles/             # CSS tokens, tipografía
-│   └── test/               # Test setup
-├── scripts/                # migrate.js, seed.js
-├── public/                 # Assets estáticos
-└── Docs/                   # Documentación funcional, técnica, plan de trabajo
-```
-
-## Variables de entorno
+<details>
+<summary>Variables de entorno</summary>
 
 | Variable | Capa | Descripción |
-|----------|------|-------------|
-| `TURSO_DATABASE_URL` | Backend | URL de la base de datos Turso |
-| `TURSO_AUTH_TOKEN` | Backend | Token de autenticación Turso |
-| `AUTH0_DOMAIN` | Backend | Dominio Auth0 (ej. `xxx.eu.auth0.com`) |
-| `AUTH0_AUDIENCE` | Backend | Audience/API identifier en Auth0 |
-| `VITE_AUTH0_DOMAIN` | Frontend | Dominio Auth0 (mismo valor) |
-| `VITE_AUTH0_CLIENT_ID` | Frontend | Client ID de la aplicación SPA en Auth0 |
-| `VITE_AUTH0_AUDIENCE` | Frontend | Audience Auth0 (mismo valor) |
-| `VITE_AUTH0_BYPASS` | Frontend | `true` para bypass en desarrollo local |
-| `STRIPE_SECRET_KEY` | Backend | Clave secreta de Stripe |
-| `STRIPE_PRICE_BASIC` | Backend | ID del precio Basic en Stripe (ej. `price_xxx`) |
-| `STRIPE_PRICE_PRO` | Backend | ID del precio Pro en Stripe (ej. `price_xxx`) |
-| `STRIPE_WEBHOOK_SECRET` | Backend | Secret del webhook endpoint de Stripe |
-| `GMAIL_USER` | Backend | Email de Gmail para envío SMTP |
-| `GMAIL_APP_PASSWORD` | Backend | App Password de Gmail (16 caracteres) |
-| `CRON_SECRET` | Backend | Secret para autenticar cron jobs de Vercel |
-| `APP_URL` | Backend | URL base de producción (ej. `https://clicapt-crm.vercel.app`) |
+|---|---|---|
+| `TURSO_DATABASE_URL` · `TURSO_AUTH_TOKEN` | Backend | Base de datos |
+| `AUTH0_DOMAIN` · `AUTH0_AUDIENCE` | Backend | Verificación del JWT |
+| `VITE_AUTH0_DOMAIN` · `VITE_AUTH0_CLIENT_ID` · `VITE_AUTH0_AUDIENCE` | Frontend | SPA Auth0 |
+| `VITE_AUTH0_BYPASS` | Frontend | `true` para saltar el login en local |
+| `STRIPE_SECRET_KEY` · `STRIPE_PRICE_BASIC` · `STRIPE_PRICE_PRO` · `STRIPE_WEBHOOK_SECRET` | Backend | Cobros |
+| `GMAIL_USER` · `GMAIL_APP_PASSWORD` | Backend | Envío de correo |
+| `CRON_SECRET` | Backend | Autentica los cron de Vercel |
+| `APP_URL` | Backend | URL base de producción |
 
-Consulta `.env.example` para la lista completa. Las variables con prefijo `VITE_` están disponibles en el frontend.
+La lista completa está en `.env.example`. Las `VITE_` llegan al navegador: nada secreto ahí.
 
-## API Endpoints
+</details>
 
-Todos los endpoints (excepto webhook y cron) requieren `Authorization: Bearer <token>` de Auth0.
+## La api
+
+Funciones serverless en `api/`, una carpeta por recurso. Todo endpoint —salvo el webhook de Stripe
+y los cron— exige `Authorization: Bearer <token>`.
+
+<details>
+<summary>Endpoints</summary>
 
 | Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/me` | Perfil del usuario actual |
-| PUT | `/api/me` | Actualizar perfil |
-| POST | `/api/auth/callback` | Provisionar org/usuario tras login |
-| GET | `/api/contacts` | Listar contactos (con filtros) |
-| POST | `/api/contacts` | Crear contacto |
-| GET | `/api/contacts/[id]` | Detalle de contacto |
-| PUT | `/api/contacts/[id]` | Actualizar contacto |
-| DELETE | `/api/contacts/[id]` | Eliminar contacto |
-| GET | `/api/contacts/export` | Exportar contactos a CSV |
-| POST | `/api/contacts/import` | Importar contactos desde CSV |
-| GET | `/api/deals` | Listar deals |
-| POST | `/api/deals` | Crear deal |
-| GET | `/api/deals/[id]` | Detalle de deal |
-| PUT | `/api/deals/[id]` | Actualizar deal |
-| PATCH | `/api/deals/[id]` | Mover deal de etapa |
-| DELETE | `/api/deals/[id]` | Eliminar deal |
-| GET | `/api/tasks` | Listar tareas |
-| POST | `/api/tasks` | Crear tarea |
-| PUT | `/api/tasks/[id]` | Actualizar tarea |
-| PATCH | `/api/tasks/[id]` | Toggle completar tarea |
-| GET | `/api/activities` | Listar actividades |
-| POST | `/api/activities` | Crear actividad |
-| GET | `/api/tags` | Listar etiquetas |
-| POST | `/api/tags` | Crear etiqueta |
-| GET | `/api/pipeline/stages` | Listar etapas pipeline |
-| PUT | `/api/pipeline/stages` | Reordenar/actualizar etapas |
+|---|---|---|
+| GET · PUT | `/api/me` | Perfil del usuario |
+| POST | `/api/auth/callback` | Provisiona organización y usuario tras el login |
+| GET · POST | `/api/contacts` | Listar (con filtros) y crear |
+| GET · PUT · DELETE | `/api/contacts/[id]` | Detalle, actualizar, eliminar |
+| GET | `/api/contacts/export` | Exportar a CSV |
+| POST | `/api/contacts/import` | Importar desde CSV |
+| GET · POST | `/api/deals` | Listar y crear |
+| GET · PUT · PATCH · DELETE | `/api/deals/[id]` | Detalle, actualizar, mover de etapa, eliminar |
+| GET · POST | `/api/tasks` | Listar y crear |
+| PUT · PATCH | `/api/tasks/[id]` | Actualizar · completar |
+| GET · POST | `/api/activities` | Línea de tiempo |
+| GET · POST | `/api/tags` | Etiquetas |
+| GET · PUT | `/api/pipeline/stages` | Etapas del pipeline |
 | GET | `/api/dashboard` | KPIs y estadísticas |
-| GET | `/api/organization` | Info organización |
-| PUT | `/api/organization` | Actualizar organización |
-| GET | `/api/organization/members` | Listar miembros |
-| POST | `/api/organization/members` | Invitar miembro |
-| POST | `/api/stripe/create-checkout` | Crear sesión de checkout Stripe |
-| POST | `/api/stripe/portal` | Crear sesión del portal Stripe |
-| POST | `/api/stripe/webhook` | Webhook de Stripe (sin auth) |
-| GET | `/api/cron/trial-warnings` | Enviar avisos de trial (cron) |
-| GET | `/api/cron/task-reminders` | Enviar recordatorios de tareas (cron) |
+| GET · PUT | `/api/organization` | Datos de la organización |
+| GET · POST | `/api/organization/members` | Equipo e invitaciones |
+| POST | `/api/stripe/create-checkout` · `/api/stripe/portal` | Alta y gestión de suscripción |
+| POST | `/api/stripe/webhook` | Webhook de Stripe (sin auth, firma verificada) |
+| GET | `/api/cron/trial-warnings` · `/api/cron/task-reminders` | Cron diarios |
 | GET | `/api/health` | Health check |
 
-## Despliegue
+</details>
+
+## Desplegar
 
 ```bash
-# Instalar Vercel CLI
-npm i -g vercel
-
-# Desplegar
 vercel --prod
 ```
 
-Configura las variables de entorno en el dashboard de Vercel antes del primer despliegue.
+Antes del primer despliegue: variables en el dashboard de Vercel, dos productos con precio mensual
+en Stripe, el webhook apuntando a `https://<dominio>/api/stripe/webhook` con los eventos
+`checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted` e
+`invoice.payment_failed`, y `CRON_SECRET` puesto. Los cron viven en `vercel.json`: avisos de trial
+a las 09:00 UTC y recordatorios de tareas a las 08:00 UTC.
 
-### Configuración de Stripe (producción)
+## Stack
 
-1. Crear dos productos en Stripe Dashboard (Básico y Pro) con precios recurrentes mensuales
-2. Copiar los `price_id` a las variables `STRIPE_PRICE_BASIC` y `STRIPE_PRICE_PRO`
-3. Crear un webhook endpoint apuntando a `https://<tu-dominio>/api/stripe/webhook`
-4. Habilitar eventos: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`
-5. Copiar el webhook secret a `STRIPE_WEBHOOK_SECRET`
+**React 18** + Vite · React Router 6 · TanStack Query · Zustand · Tailwind · Recharts ·
+**Vercel Serverless Functions** (Node 20) · **Turso** (libSQL) · **Auth0** · **Stripe** ·
+Nodemailer · Zod · Vitest + Playwright.
 
-### Configuración de Cron Jobs
-
-Los cron jobs se configuran en `vercel.json`:
-- **trial-warnings**: Se ejecuta diariamente a las 09:00 UTC
-- **task-reminders**: Se ejecuta diariamente a las 08:00 UTC
-
-Requiere la variable `CRON_SECRET` configurada en Vercel.
-
-## Documentación
-
-- [Documentación funcional](Docs/DocumentacionFuncional.md)
-- [Documentación técnica](Docs/DocumentacionTecnica.md)
-- [Guía de estilos](Docs/GuiaDeEstilos.md)
-- [Plan de trabajo](Docs/PlanDeTrabajo.md)
-- [Contratos de API](Docs/Contratos.md)
+Documentación en [`Docs/`](Docs/): [funcional](Docs/DocumentacionFuncional.md) ·
+[técnica](Docs/DocumentacionTecnica.md) · [contratos de API](Docs/Contratos.md) ·
+[guía de estilos](Docs/GuiaDeEstilos.md) · [plan de trabajo](Docs/PlanDeTrabajo.md).
 
 ## Licencia
 
-Propietario — Todos los derechos reservados.
+Propietario — todos los derechos reservados.
